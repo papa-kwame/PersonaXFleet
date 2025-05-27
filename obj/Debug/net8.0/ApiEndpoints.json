@@ -580,6 +580,32 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "PersonaXFleet.Controllers.RoutesController",
+    "Method": "GetUserRouteRoles",
+    "RelativePath": "api/Routes/user-route-roles/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[PersonaXFleet.DTOs.UserRouteAccessDto, PersonaXFleet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
     "Method": "GetAllRequestComments",
     "RelativePath": "api/VehicleAssignment/{id}/comments",

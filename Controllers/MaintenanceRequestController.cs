@@ -202,6 +202,7 @@ namespace PersonaXFleet.Controllers
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
+            var user = await _userManager.FindByIdAsync(userId);
 
             var vehicle = await _context.Vehicles
                 .FirstOrDefaultAsync(v => v.UserId == userId);
@@ -211,12 +212,11 @@ namespace PersonaXFleet.Controllers
 
             var route = await _context.Routes
                 .Include(r => r.UserRoles)
-                .FirstOrDefaultAsync(r => r.Department == requestDto.Department);
+                .FirstOrDefaultAsync(r => r.Department == user.Department);
 
             if (route == null)
                 return BadRequest("No workflow route defined for this department");
 
-            var user = await _userManager.FindByIdAsync(userId);
 
             var request = new MaintenanceRequest
             {
@@ -228,8 +228,6 @@ namespace PersonaXFleet.Controllers
                 RequestDate = DateTime.UtcNow,
                 Status = MaintenanceRequestStatus.Pending,
                 Priority = requestDto.Priority,
-                EstimatedCost = requestDto.EstimatedCost,
-                AdminComments = requestDto.AdminComments ?? string.Empty,
                 CurrentRouteId = route.Id,
                 CurrentStage = "Comment"
             };

@@ -904,6 +904,54 @@
         }
       }
     },
+    "/api/Routes/user-route-roles/{userId}": {
+      "get": {
+        "tags": [
+          "Routes"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserRouteAccessDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserRouteAccessDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserRouteAccessDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Routes/my-route-details/{routeId}": {
       "get": {
         "tags": [
@@ -1606,10 +1654,6 @@
       "CreatePersonalMaintenanceRequestDto": {
         "type": "object",
         "properties": {
-          "department": {
-            "type": "string",
-            "nullable": true
-          },
           "requestType": {
             "$ref": "#/components/schemas/MaintenanceRequestType"
           },
@@ -1619,15 +1663,6 @@
           },
           "priority": {
             "$ref": "#/components/schemas/MaintenancePriority"
-          },
-          "estimatedCost": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "adminComments": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1847,6 +1882,28 @@
             "nullable": true
           },
           "userEmail": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserRouteAccessDto": {
+        "type": "object",
+        "properties": {
+          "routeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "routeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "department": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
             "type": "string",
             "nullable": true
           }

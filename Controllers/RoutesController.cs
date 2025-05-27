@@ -212,6 +212,39 @@ namespace PersonaXFleet.Controllers
             return Ok(_requiredRolesInOrder);
         }
 
+        [HttpGet("user-route-roles/{userId}")]
+        public async Task<ActionResult<IEnumerable<UserRouteAccessDto>>> GetUserRouteRoles(string userId)
+        {
+            // Check if the user exists
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound($"User with ID {userId} not found.");
+            }
+
+            // Retrieve the user's route roles
+            var userRouteRoles = await _context.UserRouteRoles
+                .Include(ur => ur.Route)
+                .Where(ur => ur.UserId == userId)
+                .ToListAsync();
+
+            if (userRouteRoles == null || !userRouteRoles.Any())
+            {
+                return NotFound($"No route roles found for user with ID {userId}.");
+            }
+
+            // Map the user's route roles to a DTO
+            var userRouteAccessDtos = userRouteRoles.Select(ur => new UserRouteAccessDto
+            {
+                RouteId = ur.RouteId,
+                RouteName = ur.Route.Name,
+                Department = ur.Route.Department,
+                Role = ur.Role
+            }).ToList();
+
+            return Ok(userRouteAccessDtos);
+        }
+
         [HttpGet("my-route-details/{routeId}")]
         public async Task<ActionResult<UserRouteDetailDto>> GetMyRouteDetails(string routeId)
         {
