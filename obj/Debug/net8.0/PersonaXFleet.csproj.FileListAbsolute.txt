@@ -161,3 +161,4 @@ C:\Users\HP\source\repos\PersonaXFleet\PersonaXFleet\bin\Debug\net8.0\Microsoft.
 C:\Users\HP\source\repos\PersonaXFleet\PersonaXFleet\bin\Debug\net8.0\Microsoft.AspNetCore.SignalR.Common.dll
 C:\Users\HP\source\repos\PersonaXFleet\PersonaXFleet\bin\Debug\net8.0\Microsoft.AspNetCore.SignalR.Protocols.Json.dll
 C:\Users\HP\source\repos\PersonaXFleet\PersonaXFleet\bin\Debug\net8.0\Microsoft.Extensions.Features.dll
+C:\Users\HP\source\repos\PersonaXFleet\PersonaXFleet\obj\Debug\net8.0\PersonaXFleet.sourcelink.json

@@ -1,6 +1,22 @@
 [
   {
     "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "ForgotPassword",
+    "RelativePath": "api/Auth/forgot-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "PersonaXFleet.Models.ForgotPassword",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
     "Method": "Login",
     "RelativePath": "api/Auth/login",
     "HttpMethod": "POST",
@@ -26,6 +42,22 @@
       {
         "Name": "model",
         "Type": "RegisterModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "ResetPassword",
+    "RelativePath": "api/Auth/reset-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "PersonaXFleet.Models.ResetPassword",
         "IsRequired": true
       }
     ],
@@ -357,6 +389,22 @@
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetMyRequests",
+    "RelativePath": "api/MaintenanceRequest/my-requests",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
     "Method": "CreatePersonalMaintenanceRequest",
     "RelativePath": "api/MaintenanceRequest/personal",
     "HttpMethod": "POST",
@@ -569,22 +617,6 @@
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
-    "Method": "AssignVehicleToUser",
-    "RelativePath": "api/VehicleAssignment/Assign",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "assignDto",
-        "Type": "PersonaXFleet.DTOs.AssignVehicleDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
     "Method": "GetAssignmentHistory",
     "RelativePath": "api/VehicleAssignment/AssignmentHistory/{vehicleId}",
     "HttpMethod": "GET",
@@ -643,6 +675,22 @@
         "Name": "userId",
         "Type": "System.String",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
+    "Method": "GetMyVehicleRequests",
+    "RelativePath": "api/VehicleAssignment/MyVehicleRequests/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

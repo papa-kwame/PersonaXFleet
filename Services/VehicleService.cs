@@ -98,15 +98,25 @@ namespace PersonaXFleet.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteVehicleAsync(string id)
-        {
-            var vehicle = await _context.Vehicles.FindAsync(id);
-            if (vehicle != null)
-            {
-                _context.Vehicles.Remove(vehicle);
-                await _context.SaveChangesAsync();
-            }
-        }
+public async Task<bool> DeleteVehicleAsync(string id)
+{
+    var vehicle = await _context.Vehicles.FindAsync(id);
+
+    if (vehicle == null)
+        return false;
+
+    // Check if the vehicle is currently assigned to a user
+    if (!string.IsNullOrEmpty(vehicle.UserId))
+    {
+        // Vehicle is assigned; do not delete
+        return false;
+    }
+
+    _context.Vehicles.Remove(vehicle);
+    await _context.SaveChangesAsync();
+    return true;
+}
+
 
         private static VehicleDto MapToDto(Vehicle vehicle)
         {
@@ -138,7 +148,10 @@ namespace PersonaXFleet.Services
             };
         }
 
-
+        Task IVehicleService.DeleteVehicleAsync(string id)
+        {
+            return DeleteVehicleAsync(id);
+        }
     }
 
 }

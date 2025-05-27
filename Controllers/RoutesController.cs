@@ -16,7 +16,22 @@ namespace PersonaXFleet.Controllers
         private readonly AuthDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        private readonly string[] _validDepartments = { "Management", "Finance", "HR", "Operations", "Legal", "Support", "Audit" };
+        private readonly string[] _validDepartments = {
+    "Admin",
+    "Audit",
+    "Business Development",
+    "Consulting",
+    "Customer Support",
+    "Finance",
+    "HR",
+    "Legal",
+    "Management",
+    "Operations",
+    "Software",
+    "Support",
+    "Systems Integration"
+};
+
         private readonly string[] _requiredRolesInOrder = { "Comment", "Review", "Commit", "Approve" };
 
         public RoutesController(AuthDbContext context, UserManager<ApplicationUser> userManager)
@@ -87,6 +102,18 @@ namespace PersonaXFleet.Controllers
             if (!_validDepartments.Contains(dto.Department))
                 return BadRequest("Invalid department");
 
+            var existingRouteWithSameName = await _context.Routes
+                .FirstOrDefaultAsync(r => r.Name == dto.Name);
+
+            if (existingRouteWithSameName != null)
+                return Conflict("A route with the same name already exists");
+
+            var existingRouteWithSameDepartment = await _context.Routes
+                .FirstOrDefaultAsync(r => r.Department == dto.Department);
+
+            if (existingRouteWithSameDepartment != null)
+                return Conflict("A route with the same department already exists");
+
             var validationResult = ValidateRoleAssignment(dto.Users);
             if (validationResult != null) return validationResult;
 
@@ -113,6 +140,7 @@ namespace PersonaXFleet.Controllers
 
             return CreatedAtAction(nameof(GetRoute), new { id = route.Id }, route);
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRoute(string id, CreateRouteDto dto)

@@ -67,6 +67,68 @@
         }
       }
     },
+    "/api/Auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassword"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassword"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPassword"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/reset-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPassword"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPassword"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPassword"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Auth/verify": {
       "get": {
         "tags": [
@@ -615,6 +677,27 @@
         }
       }
     },
+    "/api/MaintenanceRequest/my-requests": {
+      "get": {
+        "tags": [
+          "MaintenanceRequest"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Routes": {
       "get": {
         "tags": [
@@ -865,37 +948,6 @@
         "tags": [
           "VehicleAssignment"
         ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/VehicleAssignment/Assign": {
-      "post": {
-        "tags": [
-          "VehicleAssignment"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignVehicleDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignVehicleDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignVehicleDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "OK"
@@ -1200,6 +1252,28 @@
         }
       }
     },
+    "/api/VehicleAssignment/MyVehicleRequests/{userId}": {
+      "get": {
+        "tags": [
+          "VehicleAssignment"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Vehicles": {
       "get": {
         "tags": [
@@ -1484,38 +1558,6 @@
   },
   "components": {
     "schemas": {
-      "AssignVehicleDto": {
-        "required": [
-          "department",
-          "reason",
-          "userId",
-          "vehicleId"
-        ],
-        "type": "object",
-        "properties": {
-          "vehicleId": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "userId": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "department": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "reason": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "estimatedDuration": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
       "CheckAssignmentDto": {
         "type": "object",
         "properties": {
@@ -1534,15 +1576,10 @@
         "required": [
           "description",
           "priority",
-          "requestType",
-          "vehicleId"
+          "requestType"
         ],
         "type": "object",
         "properties": {
-          "vehicleId": {
-            "minLength": 1,
-            "type": "string"
-          },
           "requestType": {
             "$ref": "#/components/schemas/MaintenanceRequestType"
           },
@@ -1560,10 +1597,6 @@
             "nullable": true
           },
           "adminComments": {
-            "type": "string",
-            "nullable": true
-          },
-          "department": {
             "type": "string",
             "nullable": true
           }
@@ -1620,6 +1653,20 @@
               "$ref": "#/components/schemas/UserRoleDto"
             },
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ForgotPassword": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
           }
         },
         "additionalProperties": false
@@ -1712,6 +1759,35 @@
           },
           "department": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResetPassword": {
+        "required": [
+          "password",
+          "token",
+          "userId"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "token": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string",
+            "format": "password"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "format": "password",
             "nullable": true
           }
         },
@@ -1918,24 +1994,19 @@
         "additionalProperties": false
       },
       "VehicleRequestDto": {
-        "required": [
-          "department",
-          "requestReason",
-          "userId"
-        ],
         "type": "object",
         "properties": {
           "userId": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
+          },
+          "vehicleId": {
+            "type": "string",
+            "nullable": true
           },
           "requestReason": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "department": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

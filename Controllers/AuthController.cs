@@ -10,6 +10,7 @@
     using PersonaXFleet.DTOs;
 using Microsoft.EntityFrameworkCore;
 using PersonaXFleet.Data;
+using System.Text.RegularExpressions;
 
 namespace FleetIdentityServer.Controllers;
 
@@ -97,6 +98,58 @@ namespace FleetIdentityServer.Controllers;
             userId = user.Id
         });
     }
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPassword model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+        {
+            // Don't reveal that the user does not exist or is not confirmed
+            return Ok();
+        }
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var callbackUrl = Url.Action("ResetPassword", "Auth", new { userId = user.Id, token = token }, protocol: HttpContext.Request.Scheme);
+
+        // Log the token to the console or debug output
+        Console.WriteLine($"Password Reset Token for {user.Email}: {token}");
+        System.Diagnostics.Debug.WriteLine($"Password Reset Token for {user.Email}: {token}");
+
+        // Send email with the callbackUrl
+        // You need to implement your email service here
+        // await _emailService.SendPasswordResetEmailAsync(user.Email, callbackUrl);
+
+        return Ok(new { Token = token });
+    }
+
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPassword model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var user = await _userManager.FindByIdAsync(model.UserId);
+        if (user == null)
+        {
+            return BadRequest("User not found");
+        }
+
+        var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
+
+        return Ok(new { message = "Password has been reset successfully" });
+    }
 
     [HttpGet("verify")]
         public IActionResult Verify()
@@ -120,7 +173,8 @@ namespace FleetIdentityServer.Controllers;
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 Roles = roles.ToList(),
-                IsLocked = await _userManager.IsLockedOutAsync(user)
+                IsLocked = await _userManager.IsLockedOutAsync(user),
+                Department = user.Department
             });
         }
 
@@ -129,31 +183,42 @@ namespace FleetIdentityServer.Controllers;
 
 
     [HttpPost("users/{userId}/roles")]
-        public async Task<IActionResult> UpdateUserRoles(string userId, [FromBody] UpdateRolesDto dto)
+    public async Task<IActionResult> UpdateUserRoles(string userId, [FromBody] UpdateRolesDto dto)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound();
+
+        if (!IsValidEmail(user.Email))
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return NotFound();
-
-            var currentRoles = await _userManager.GetRolesAsync(user);
-
-            var rolesToAdd = dto.Roles.Except(currentRoles);
-            var rolesToRemove = currentRoles.Except(dto.Roles);
-
-            if (rolesToRemove.Any())
-            {
-                var removeResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
-                if (!removeResult.Succeeded) return BadRequest(removeResult.Errors);
-            }
-
-            if (rolesToAdd.Any())
-            {
-                var addResult = await _userManager.AddToRolesAsync(user, rolesToAdd);
-                if (!addResult.Succeeded) return BadRequest(addResult.Errors);
-            }
-
-            return Ok();
+            return BadRequest(new { code = "InvalidEmail", description = "Email is invalid." });
         }
-        [HttpPost("users/{userId}/lock")]
+
+        var currentRoles = await _userManager.GetRolesAsync(user);
+
+        var rolesToAdd = dto.Roles.Except(currentRoles);
+        var rolesToRemove = currentRoles.Except(dto.Roles);
+
+        if (rolesToRemove.Any())
+        {
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+            if (!removeResult.Succeeded) return BadRequest(removeResult.Errors);
+        }
+
+        if (rolesToAdd.Any())
+        {
+            var addResult = await _userManager.AddToRolesAsync(user, rolesToAdd);
+            if (!addResult.Succeeded) return BadRequest(addResult.Errors);
+        }
+
+        return Ok();
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        // Regular expression to check if the email is valid
+        return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+    }
+    [HttpPost("users/{userId}/lock")]
         public async Task<IActionResult> ToggleUserLock(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);

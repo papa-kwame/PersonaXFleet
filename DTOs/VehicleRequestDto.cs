@@ -4,15 +4,11 @@ namespace PersonaXFleet.DTOs
 {
     public class VehicleRequestDto
     {
-        [Required]
         public string UserId { get; set; }
-
-        [Required]
+        public string VehicleId { get; set; }
         public string RequestReason { get; set; }
-
-        [Required]
-        public string Department { get; set; }
     }
+
 
 
 }

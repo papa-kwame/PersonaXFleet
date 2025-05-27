@@ -26,6 +26,10 @@ namespace PersonaXFleet.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllMaintenanceRequests()
         {
+
+
+
+
             var requests = await _context.MaintenanceRequests
                 .Include(r => r.Vehicle)
                 .Include(r => r.RequestedByUser)
@@ -127,15 +131,22 @@ namespace PersonaXFleet.Controllers
                 return Unauthorized();
             }
 
-            var vehicle = await _context.Vehicles.FindAsync(requestDto.VehicleId);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found");
+
+            var vehicle = await _context.Vehicles
+                .FirstOrDefaultAsync(v => v.UserId == userId);
+
             if (vehicle == null)
             {
-                return BadRequest("Vehicle not found");
+                return BadRequest("No vehicle found assigned to the specified user");
             }
+
 
             var route = await _context.Routes
                 .Include(r => r.UserRoles)
-                .FirstOrDefaultAsync(r => r.Department == requestDto.Department);
+                .FirstOrDefaultAsync(r => r.Department == user.Department);
 
             if (route == null)
             {
@@ -144,9 +155,9 @@ namespace PersonaXFleet.Controllers
 
             var request = new MaintenanceRequest
             {
-                VehicleId = requestDto.VehicleId,
+                VehicleId = vehicle.Id,
                 RequestedByUserId = userId,
-                Department = requestDto.Department,
+                Department = user.Department,
                 RequestType = requestDto.RequestType,
                 Description = requestDto.Description,
                 RequestDate = DateTime.UtcNow,
@@ -184,40 +195,34 @@ namespace PersonaXFleet.Controllers
             });
         }
         [HttpPost("personal")]
-        public async Task<IActionResult> CreatePersonalMaintenanceRequest([FromBody] CreatePersonalMaintenanceRequestDto requestDto, string userId)
+        public async Task<IActionResult> CreatePersonalMaintenanceRequest([FromBody] CreatePersonalMaintenanceRequestDto requestDto, [FromQuery] string userId)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             if (string.IsNullOrEmpty(userId))
-            {
                 return Unauthorized();
-            }
 
             var vehicle = await _context.Vehicles
-                .FirstOrDefaultAsync(v => v.UserId == userId); 
+                .FirstOrDefaultAsync(v => v.UserId == userId);
 
             if (vehicle == null)
-            {
                 return BadRequest("No vehicle assigned to this user");
-            }
 
             var route = await _context.Routes
                 .Include(r => r.UserRoles)
                 .FirstOrDefaultAsync(r => r.Department == requestDto.Department);
 
             if (route == null)
-            {
                 return BadRequest("No workflow route defined for this department");
-            }
+
+            var user = await _userManager.FindByIdAsync(userId);
 
             var request = new MaintenanceRequest
             {
                 VehicleId = vehicle.Id,
                 RequestedByUserId = userId,
-                Department = requestDto.Department,
+                Department = user.Department,
                 RequestType = requestDto.RequestType,
                 Description = requestDto.Description,
                 RequestDate = DateTime.UtcNow,
@@ -251,9 +256,17 @@ namespace PersonaXFleet.Controllers
                 Message = "Personal maintenance request submitted successfully",
                 RequestId = request.MaintenanceId,
                 RouteId = route.Id,
-                CurrentStage = request.CurrentStage
+                CurrentStage = request.CurrentStage,
+                Vehicle = new
+                {
+                    vehicle.Id,
+                    vehicle.Make,
+                    vehicle.Model,
+                    vehicle.LicensePlate
+                }
             });
         }
+
 
         private async Task ProcessRequestorSkipsAsync(MaintenanceRequest request, Router route, string userId)
         {
@@ -321,7 +334,7 @@ namespace PersonaXFleet.Controllers
             } while (advanced);
         }
 
-     
+
 
 
         [HttpPost("{id}/process-stage")]
@@ -450,7 +463,6 @@ namespace PersonaXFleet.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            // Update the estimated cost if provided in the DTO and current stage is "Commit"
             if (dto.EstimatedCost.HasValue && request.CurrentStage == "Commit")
             {
                 request.EstimatedCost = dto.EstimatedCost.Value;
@@ -583,11 +595,12 @@ namespace PersonaXFleet.Controllers
 
             var comments = await _context.MaintenanceTransactions
                 .Where(t => t.MaintenanceRequestId == id && !string.IsNullOrEmpty(t.Comments))
+                .Include(t => t.User)  // Include the User data
                 .Select(t => new
                 {
                     Stage = t.Action,
                     Comment = t.Comments,
-                    UserId = t.UserId,
+                    UserName = t.User != null ? t.User.UserName : "Unknown", // Adjust based on your User property
                     Timestamp = t.Timestamp
                 })
                 .OrderBy(t => t.Timestamp)
@@ -599,7 +612,6 @@ namespace PersonaXFleet.Controllers
                 Comments = comments
             });
         }
-
 
         [HttpGet("my-pending-actions")]
         public async Task<IActionResult> GetMyPendingActions(string userId)
@@ -796,6 +808,50 @@ namespace PersonaXFleet.Controllers
             var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             return File(fileStream, "application/octet-stream", document.FileName);
         }
+
+        [HttpGet("my-requests")]
+        public async Task<IActionResult> GetMyRequests(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found");
+
+            var requests = await _context.MaintenanceRequests
+                .Include(r => r.Vehicle)
+                .Include(r => r.RequestedByUser)
+                .Include(r => r.CurrentRoute)
+                .Where(r => r.RequestedByUserId == userId)
+                .OrderByDescending(r => r.RequestDate)
+                .Select(r => new MaintenanceRequestDto
+                {
+                    Id = r.MaintenanceId,
+                    VehicleId = r.VehicleId,
+                    VehicleMake = r.Vehicle.Make,
+                    VehicleModel = r.Vehicle.Model,
+                    LicensePlate = r.Vehicle.LicensePlate,
+                    RequestType = r.RequestType.ToString(),
+                    Description = r.Description,
+                    RequestDate = r.RequestDate,
+                    Status = r.Status.ToString(),
+                    Priority = r.Priority.ToString(),
+                    EstimatedCost = r.EstimatedCost,
+                    AdminComments = r.AdminComments,
+                    RequestedByUserId = r.RequestedByUserId,
+                    RequestedByUserName = r.RequestedByUser.UserName,
+                    Department = user.Department,
+                    CurrentStage = r.CurrentStage,
+                    RouteName = r.CurrentRoute.Name
+                })
+                .ToListAsync();
+
+            return Ok(requests);
+        }
+
     }
 
     public class ProcessStageDto
