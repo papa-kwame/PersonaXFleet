@@ -15,7 +15,8 @@ namespace PersonaXFleet.Data
         public DbSet<VehicleAssignmentHistory> VehicleAssignmentHistories { get; set; }
         public DbSet<Router> Routes { get; set; }
         public DbSet<UserRouteRole> UserRouteRoles { get; set; }
-
+        
+        public DbSet<PartUsed> PartsUsed { get; set; }
         public DbSet<MaintenanceRequest> MaintenanceRequests { get; set; }
 
        public DbSet<MaintenanceTransaction> MaintenanceTransactions { get; set; }
@@ -26,9 +27,16 @@ namespace PersonaXFleet.Data
 
         public DbSet<MaintenanceDocument> MaintenanceDocuments { get; set; }
 
+        public DbSet<Invoice> Invoices { get; set; }
+
         public DbSet<MaintenanceComment> MaintenanceComments { get; set; }
         public DbSet<VehicleAssignmentRequest> VehicleAssignmentRequests { get; set; }
         public DbSet<VehicleAssignmentTransaction> VehicleAssignmentTransactions { get; set; }
+
+        public DbSet<MaintenanceSchedule> MaintenanceSchedules { get; set; }
+        public DbSet<FuelLog> FuelLogs { get; set; }
+
+        public DbSet<MaintenanceProgressUpdate> MaintenanceProgressUpdates { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -120,6 +128,12 @@ namespace PersonaXFleet.Data
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<FuelLog>()
+                .HasOne(f => f.Vehicle)
+                .WithMany() // or .WithMany(v => v.FuelLogs) if you add a collection in `Vehicle`
+                .HasForeignKey(f => f.VehicleId);
+
+
         }
-}
+    }
 }

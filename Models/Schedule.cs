@@ -32,6 +32,6 @@ namespace PersonaXFleet.Models
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; } // Scheduled, Overdue, Completed
+        public string Status { get; set; } 
     }
 }

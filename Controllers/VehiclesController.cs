@@ -23,12 +23,11 @@ namespace PersonaXFleet.Controllers
         public VehiclesController(IVehicleService vehicleService, AuthDbContext context,
              UserManager<ApplicationUser> userManager)
         {
-            _context = context; // <-- This was missing
-            _userManager = userManager; // <-- This too
+            _context = context; 
+            _userManager = userManager; 
             _vehicleService = vehicleService;
         }
 
-        // GET: api/vehicles
         [HttpGet]
         public async Task<ActionResult<IEnumerable<VehicleDto>>> GetVehicles()
         {
@@ -36,7 +35,8 @@ namespace PersonaXFleet.Controllers
             return Ok(vehicles);
         }
 
-        // GET: api/vehicles/5
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<VehicleDto>> GetVehicle(string id)
         {
@@ -50,7 +50,6 @@ namespace PersonaXFleet.Controllers
             return vehicle;
         }
 
-        // POST: api/vehicles
         [HttpPost]
         public async Task<ActionResult<VehicleDto>> PostVehicle(VehicleDto vehicleDto)
         {
@@ -65,7 +64,6 @@ namespace PersonaXFleet.Controllers
             }
         }
 
-        // PUT: api/vehicles/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutVehicle(string id, VehicleDto vehicleDto)
         {
@@ -89,7 +87,6 @@ namespace PersonaXFleet.Controllers
             }
         }
 
-        // DELETE: api/vehicles/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVehicle(string id)
         {
@@ -113,24 +110,22 @@ namespace PersonaXFleet.Controllers
 
             if (vehicle == null) return NotFound("Vehicle not found");
 
-            // Check if the user is assigned to the vehicle
             var isAssigned = vehicle.UserId == dto.UserId;
             return Ok(isAssigned);
         }
 
-        // Add these to your VehicleAssignmentController.cs
 
       
 
 
         [HttpGet("Available")]
-        [Produces("application/json")] // Explicitly declare JSON response
+        [Produces("application/json")] 
         public async Task<IActionResult> GetAvailableVehicles()
         {
             try
             {
                 var vehicles = await _context.Vehicles
-                    .Where(v => v.UserId == null) // Available vehicles
+                    .Where(v => v.UserId == null) 
                     .Select(v => new {
                         v.Id,
                         v.Make,

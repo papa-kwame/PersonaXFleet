@@ -29,40 +29,53 @@ namespace PersonaXFleet.Services
             return vehicle != null ? MapToDto(vehicle) : null;
         }
 
-        public async Task<VehicleDto> CreateVehicleAsync(VehicleDto vehicleDto)
-        {
-            var vehicle = new Vehicle
-            {
-                // Ensure all required fields are mapped
-                Make = vehicleDto.Make,
-                Model = vehicleDto.Model,
-                Year = vehicleDto.Year,
-                LicensePlate = vehicleDto.LicensePlate,
-                VIN = vehicleDto.VIN,
-                VehicleType = vehicleDto.VehicleType,
-                Color = vehicleDto.Color,
-                Status = Enum.Parse<VehicleStatus>(vehicleDto.Status),
-                CurrentMileage = vehicleDto.CurrentMileage,
-                FuelType = Enum.Parse<FuelType>(vehicleDto.FuelType),
-                Transmission = Enum.Parse<TransmissionType>(vehicleDto.Transmission),
-                EngineSize = vehicleDto.EngineSize, // Now matches decimal type
-                SeatingCapacity = vehicleDto.SeatingCapacity,
-                PurchaseDate = vehicleDto.PurchaseDate,
-                PurchasePrice = vehicleDto.PurchasePrice,
-                LastServiceDate = vehicleDto.LastServiceDate,
-                ServiceInterval = vehicleDto.ServiceInterval,
-                NextServiceDue = vehicleDto.NextServiceDue,
-                RoadworthyExpiry = vehicleDto.RoadworthyExpiry,
-                RegistrationExpiry = vehicleDto.RegistrationExpiry,
-                InsuranceExpiry = vehicleDto.InsuranceExpiry,
-                Notes = vehicleDto.Notes
-            };
+public async Task<VehicleDto> CreateVehicleAsync(VehicleDto vehicleDto)
+{
+    if (vehicleDto == null)
+    {
+        throw new ArgumentNullException(nameof(vehicleDto), "Vehicle data is required.");
+    }
 
-            _context.Vehicles.Add(vehicle);
-            await _context.SaveChangesAsync();
+    // Parse EngineSize safely
+    decimal? engineSize = null;
+    if (vehicleDto.EngineSize != null && decimal.TryParse(vehicleDto.EngineSize.ToString(), out var parsedEngineSize))
+    {
+        engineSize = parsedEngineSize;
+    }
 
-            return MapToDto(vehicle);
-        }
+    var vehicle = new Vehicle
+    {
+        Id = vehicleDto.Id,
+        Make = vehicleDto.Make,
+        Model = vehicleDto.Model,
+        Year = vehicleDto.Year,
+        LicensePlate = vehicleDto.LicensePlate,
+        VIN = vehicleDto.VIN,
+        VehicleType = vehicleDto.VehicleType,
+        Color = vehicleDto.Color,
+        Status = VehicleStatus.Available, // Default status or other logic
+        CurrentMileage = vehicleDto.CurrentMileage,
+        FuelType = Enum.Parse<FuelType>(vehicleDto.FuelType),
+        Transmission = Enum.Parse<TransmissionType>(vehicleDto.Transmission),
+        EngineSize = engineSize,
+        SeatingCapacity = vehicleDto.SeatingCapacity,
+        PurchaseDate = vehicleDto.PurchaseDate,
+        PurchasePrice = vehicleDto.PurchasePrice,
+        LastServiceDate = vehicleDto.LastServiceDate,
+        ServiceInterval = vehicleDto.ServiceInterval,
+        NextServiceDue = vehicleDto.NextServiceDue,
+        RoadworthyExpiry = vehicleDto.RoadworthyExpiry,
+        RegistrationExpiry = vehicleDto.RegistrationExpiry,
+        InsuranceExpiry = vehicleDto.InsuranceExpiry,
+        Notes = vehicleDto.Notes
+    };
+
+    _context.Vehicles.Add(vehicle);
+    await _context.SaveChangesAsync();
+
+    return MapToDto(vehicle);
+}
+
 
         public async Task UpdateVehicleAsync(string id, VehicleDto vehicleDto)
         {

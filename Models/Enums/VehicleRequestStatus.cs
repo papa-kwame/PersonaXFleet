@@ -6,7 +6,7 @@ namespace PersonaXFleet.Models.Enums
     {
         Pending,
         Approved,
-        Reject,
+        Rejected,
         Completed
     }
 }

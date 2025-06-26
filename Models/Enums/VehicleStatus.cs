@@ -7,6 +7,7 @@
         OutOfService,
         Sold,
         Retired,
-        Available
+        Available,
+        Assigned
     }
 }

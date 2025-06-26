@@ -64,12 +64,12 @@ using Microsoft.VisualBasic.FileIO;
 
             public string Notes { get; set; }
 
-        // Add these properties for user assignment
             public string UserId { get; set; }
             public ApplicationUser User { get; set; }
 
-        public ICollection<VehicleAssignmentHistory> AssignmentHistory { get; set; }
+            public ICollection<VehicleAssignmentHistory> AssignmentHistory { get; set; }
 
+            public ICollection<FuelLog> FuelLogs { get; set; }
 
 
     }

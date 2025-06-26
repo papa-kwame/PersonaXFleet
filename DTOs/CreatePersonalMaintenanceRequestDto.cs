@@ -8,7 +8,7 @@ namespace PersonaXFleet.DTOs
         public MaintenanceRequestType RequestType { get; set; }
         public string Description { get; set; }
         public MaintenancePriority Priority { get; set; }
-
+        public string VehicleId { get;  set; }
     }
 
 }

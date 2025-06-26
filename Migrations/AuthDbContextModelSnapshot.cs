@@ -184,6 +184,9 @@ namespace PersonaXFleet.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("bit");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -222,6 +225,72 @@ namespace PersonaXFleet.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("PersonaXFleet.Models.FuelLog", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("Cost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("FuelAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("FuelStation")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("VehicleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("VehicleId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VehicleId");
+
+                    b.HasIndex("VehicleId1");
+
+                    b.ToTable("FuelLogs");
+                });
+
+            modelBuilder.Entity("PersonaXFleet.Models.Invoice", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("LaborHours")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("MaintenanceScheduleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SubmittedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("PersonaXFleet.Models.MaintenanceApproval", b =>
@@ -385,6 +454,38 @@ namespace PersonaXFleet.Migrations
                     b.ToTable("MaintenanceHistories");
                 });
 
+            modelBuilder.Entity("PersonaXFleet.Models.MaintenanceProgressUpdate", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ExpectedCompletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MaintenanceScheduleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("MechanicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MaintenanceScheduleId");
+
+                    b.HasIndex("MechanicId");
+
+                    b.ToTable("MaintenanceProgressUpdates");
+                });
+
             modelBuilder.Entity("PersonaXFleet.Models.MaintenanceRequest", b =>
                 {
                     b.Property<string>("MaintenanceId")
@@ -447,6 +548,49 @@ namespace PersonaXFleet.Migrations
                     b.ToTable("MaintenanceRequests");
                 });
 
+            modelBuilder.Entity("PersonaXFleet.Models.MaintenanceSchedule", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AssignedMechanicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Comments")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CompletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MaintenanceRequestId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ScheduledDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedMechanicId");
+
+                    b.HasIndex("MaintenanceRequestId");
+
+                    b.ToTable("MaintenanceSchedules");
+                });
+
             modelBuilder.Entity("PersonaXFleet.Models.MaintenanceTransaction", b =>
                 {
                     b.Property<string>("Id")
@@ -481,6 +625,30 @@ namespace PersonaXFleet.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("MaintenanceTransactions");
+                });
+
+            modelBuilder.Entity("PersonaXFleet.Models.PartUsed", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("InvoiceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PartName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PartsUsed");
                 });
 
             modelBuilder.Entity("PersonaXFleet.Models.Router", b =>
@@ -855,6 +1023,29 @@ namespace PersonaXFleet.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PersonaXFleet.Models.FuelLog", b =>
+                {
+                    b.HasOne("PersonaXFleet.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PersonaXFleet.Models.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PersonaXFleet.Models.Vehicle", null)
+                        .WithMany("FuelLogs")
+                        .HasForeignKey("VehicleId1");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Vehicle");
+                });
+
             modelBuilder.Entity("PersonaXFleet.Models.MaintenanceApproval", b =>
                 {
                     b.HasOne("PersonaXFleet.Models.MaintenanceRequest", "MaintenanceRequest")
@@ -910,6 +1101,25 @@ namespace PersonaXFleet.Migrations
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("PersonaXFleet.Models.MaintenanceProgressUpdate", b =>
+                {
+                    b.HasOne("PersonaXFleet.Models.MaintenanceSchedule", "MaintenanceSchedule")
+                        .WithMany()
+                        .HasForeignKey("MaintenanceScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PersonaXFleet.Models.ApplicationUser", "Mechanic")
+                        .WithMany()
+                        .HasForeignKey("MechanicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MaintenanceSchedule");
+
+                    b.Navigation("Mechanic");
+                });
+
             modelBuilder.Entity("PersonaXFleet.Models.MaintenanceRequest", b =>
                 {
                     b.HasOne("PersonaXFleet.Models.Router", "CurrentRoute")
@@ -933,6 +1143,25 @@ namespace PersonaXFleet.Migrations
                     b.Navigation("RequestedByUser");
 
                     b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("PersonaXFleet.Models.MaintenanceSchedule", b =>
+                {
+                    b.HasOne("PersonaXFleet.Models.ApplicationUser", "AssignedMechanic")
+                        .WithMany()
+                        .HasForeignKey("AssignedMechanicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PersonaXFleet.Models.MaintenanceRequest", "MaintenanceRequest")
+                        .WithMany()
+                        .HasForeignKey("MaintenanceRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedMechanic");
+
+                    b.Navigation("MaintenanceRequest");
                 });
 
             modelBuilder.Entity("PersonaXFleet.Models.MaintenanceTransaction", b =>
@@ -1083,6 +1312,8 @@ namespace PersonaXFleet.Migrations
             modelBuilder.Entity("PersonaXFleet.Models.Vehicle", b =>
                 {
                     b.Navigation("AssignmentHistory");
+
+                    b.Navigation("FuelLogs");
                 });
 
             modelBuilder.Entity("VehicleAssignmentRequest", b =>

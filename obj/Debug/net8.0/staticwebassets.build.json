@@ -1,12 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "nNLL2Mam9x/gwm+CzDGWDpfv4H5IqIbkigE2yRAmt6o=",
-  "Source": "PersonaXFleet",
-  "BasePath": "_content/PersonaXFleet",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": [],
-  "Endpoints": []
-}
+{"Version":1,"Hash":"nNLL2Mam9x/gwm+CzDGWDpfv4H5IqIbkigE2yRAmt6o=","Source":"PersonaXFleet","BasePath":"_content/PersonaXFleet","Mode":"Default","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}

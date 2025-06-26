@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\HP\\source\\repos\\PersonaXFleet\\PersonaXFleet\\PersonaXFleet.csproj": {}
+    "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\PersonaXFleet.csproj": {}
   },
   "projects": {
-    "C:\\Users\\HP\\source\\repos\\PersonaXFleet\\PersonaXFleet\\PersonaXFleet.csproj": {
+    "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\PersonaXFleet.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\HP\\source\\repos\\PersonaXFleet\\PersonaXFleet\\PersonaXFleet.csproj",
+        "projectUniqueName": "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\PersonaXFleet.csproj",
         "projectName": "PersonaXFleet",
-        "projectPath": "C:\\Users\\HP\\source\\repos\\PersonaXFleet\\PersonaXFleet\\PersonaXFleet.csproj",
-        "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\HP\\source\\repos\\PersonaXFleet\\PersonaXFleet\\obj\\",
+        "projectPath": "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\PersonaXFleet.csproj",
+        "packagesPath": "C:\\Users\\pc\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\pc\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -44,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -53,6 +53,10 @@
             "AutoMapper": {
               "target": "Package",
               "version": "[14.0.0, )"
+            },
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.12.1, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
@@ -75,6 +79,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.15, )"
+            },
+            "RazorLight": {
+              "target": "Package",
+              "version": "[2.3.1, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -104,7 +112,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

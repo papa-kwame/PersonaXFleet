@@ -8,6 +8,7 @@ using PersonaXFleet.Data;
 using Microsoft.AspNetCore.Cors;
 using PersonaXFleet.Services;
 using System.Reflection;
+using PersonaXFleet.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()

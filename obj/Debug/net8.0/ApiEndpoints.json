@@ -1,6 +1,22 @@
 [
   {
     "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "ChangePasswordOnFirstLogin",
+    "RelativePath": "api/Auth/change-password-on-first-login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "FleetIdentityServer.Controllers.ChangePasswordDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
     "Method": "ForgotPassword",
     "RelativePath": "api/Auth/forgot-password",
     "HttpMethod": "POST",
@@ -29,6 +45,16 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "GetMechanics",
+    "RelativePath": "api/Auth/mechanics",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -81,6 +107,43 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "GetUserById",
+    "RelativePath": "api/Auth/users/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "UpdateUser",
+    "RelativePath": "api/Auth/users/{userId}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "model",
+        "Type": "FleetIdentityServer.Controllers.Auth\u002BUpdateUserDto",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -147,6 +210,260 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetFuelLogs",
+    "RelativePath": "api/FuelLogs",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[PersonaXFleet.Models.FuelLog, PersonaXFleet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetFuelLog",
+    "RelativePath": "api/FuelLogs/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "PersonaXFleet.Models.FuelLog",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "PutFuelLog",
+    "RelativePath": "api/FuelLogs/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "fuelLogDto",
+        "Type": "PersonaXFleet.DTOs.FuelLogDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "DeleteFuelLog",
+    "RelativePath": "api/FuelLogs/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "PostFuelLog",
+    "RelativePath": "api/FuelLogs/{userId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "fuelLogDto",
+        "Type": "PersonaXFleet.DTOs.FuelLogDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "PersonaXFleet.Models.FuelLog",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetVehicleFuelStats",
+    "RelativePath": "api/FuelLogs/stats/{vehicleId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vehicleId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "startDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "endDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetMonthlyFuelSummary",
+    "RelativePath": "api/FuelLogs/stats/monthly-summary",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetFuelLogsByUserId",
+    "RelativePath": "api/FuelLogs/user/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[PersonaXFleet.Models.FuelLog, PersonaXFleet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetFuelLogsByUserWithDateRange",
+    "RelativePath": "api/FuelLogs/user/{userId}/filter",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "startDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "endDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[PersonaXFleet.Models.FuelLog, PersonaXFleet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetUserFuelStats",
+    "RelativePath": "api/FuelLogs/user/{userId}/stats",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetFuelLogsByVehicle",
+    "RelativePath": "api/FuelLogs/vehicle/{vehicleId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vehicleId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[PersonaXFleet.Models.FuelLog, PersonaXFleet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
     "Method": "GetAllMaintenanceRequests",
     "RelativePath": "api/MaintenanceRequest",
@@ -205,6 +522,32 @@
         "Name": "id",
         "Type": "System.String",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "CompleteWithInvoice",
+    "RelativePath": "api/MaintenanceRequest/{id}/complete-with-invoice",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "data",
+        "Type": "PersonaXFleet.Controllers.CompleteWithInvoiceDto",
+        "IsRequired": true
+      },
+      {
+        "Name": "user",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -279,6 +622,48 @@
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "SubmitProgressUpdate",
+    "RelativePath": "api/MaintenanceRequest/{id}/progress-update",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "PersonaXFleet.DTOs.MaintenanceProgressUpdateDto",
+        "IsRequired": true
+      },
+      {
+        "Name": "user",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetProgressUpdates",
+    "RelativePath": "api/MaintenanceRequest/{id}/progress-updates",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
     "Method": "RejectMaintenanceRequest",
     "RelativePath": "api/MaintenanceRequest/{id}/reject",
     "HttpMethod": "POST",
@@ -298,6 +683,48 @@
       {
         "Name": "rejectionReason",
         "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "ScheduleMaintenanceRequest",
+    "RelativePath": "api/MaintenanceRequest/{id}/schedule",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "scheduleDto",
+        "Type": "PersonaXFleet.DTOs.MaintenanceScheduleDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "UpdateMaintenanceSchedule",
+    "RelativePath": "api/MaintenanceRequest/{id}/schedule",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "scheduleDto",
+        "Type": "PersonaXFleet.DTOs.MaintenanceScheduleDto",
         "IsRequired": true
       }
     ],
@@ -347,6 +774,36 @@
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetActiveRequests",
+    "RelativePath": "api/MaintenanceRequest/active-requests",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetApprovedAndRejectedRequests",
+    "RelativePath": "api/MaintenanceRequest/approved-rejected",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetApprovedMaintenanceRequests",
+    "RelativePath": "api/MaintenanceRequest/approved-requests",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
     "Method": "GetDocument",
     "RelativePath": "api/MaintenanceRequest/documents/{documentId}",
     "HttpMethod": "GET",
@@ -365,6 +822,16 @@
     "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
     "Method": "GetMaintenanceHistory",
     "RelativePath": "api/MaintenanceRequest/history",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetMostRecentMaintenanceComments",
+    "RelativePath": "api/MaintenanceRequest/latest-comments",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -420,6 +887,106 @@
         "Name": "userId",
         "Type": "System.String",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetAllProgressUpdates",
+    "RelativePath": "api/MaintenanceRequest/progress-updates",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetProgressUpdatesByRequest",
+    "RelativePath": "api/MaintenanceRequest/progress-updates/request/{requestId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetProgressUpdatesByUser",
+    "RelativePath": "api/MaintenanceRequest/progress-updates/user/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetProgressUpdatesByVehicle",
+    "RelativePath": "api/MaintenanceRequest/progress-updates/vehicle/{vehicleId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vehicleId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetMaintenanceSchedule",
+    "RelativePath": "api/MaintenanceRequest/scheduled/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetAllMaintenanceSchedules",
+    "RelativePath": "api/MaintenanceRequest/schedules",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",
+    "Method": "GetUserSchedules",
+    "RelativePath": "api/MaintenanceRequest/user/{userId}/schedules",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -595,7 +1162,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[PersonaXFleet.DTOs.UserRouteAccessDto, PersonaXFleet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.String",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -623,6 +1190,32 @@
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
+    "Method": "RejectVehicleRequest",
+    "RelativePath": "api/VehicleAssignment/{id}/reject",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "rejectionReason",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
     "Method": "GetAllAssignments",
     "RelativePath": "api/VehicleAssignment/AllAssignments",
     "HttpMethod": "GET",
@@ -639,6 +1232,32 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
+    "Method": "GetApprovedRequests",
+    "RelativePath": "api/VehicleAssignment/ApprovedRequests",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
+    "Method": "AssignVehicleDirectly",
+    "RelativePath": "api/VehicleAssignment/assign",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "PersonaXFleet.Controllers.DirectAssignmentDto",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -691,6 +1310,16 @@
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
+    "Method": "GetMostRecentCommentsForAllRequests",
+    "RelativePath": "api/VehicleAssignment/latest-comments",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
     "Method": "GetMyPendingVehicleActions",
     "RelativePath": "api/VehicleAssignment/my-pending-actions",
     "HttpMethod": "GET",
@@ -719,6 +1348,26 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
+    "Method": "GetRecentAssignments",
+    "RelativePath": "api/VehicleAssignment/RecentAssignments",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
+    "Method": "GetRequestsBeforeApproval",
+    "RelativePath": "api/VehicleAssignment/RequestsBeforeApproval",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -971,6 +1620,32 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MailController",
+    "Method": "SendEmail",
+    "RelativePath": "Mail/send",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "message",
+        "Type": "PersonaXFleet.Models.EmailMessage",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.MailController",
+    "Method": "SendTest",
+    "RelativePath": "Mail/test",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.WeatherForecastController",
