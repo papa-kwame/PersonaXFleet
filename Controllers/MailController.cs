@@ -18,44 +18,53 @@ namespace PersonaXFleet.Controllers
             _email = email;
             _env = env;
         }
-
         [HttpPost("send")]
         public async Task<IActionResult> SendEmail(EmailMessage message)
         {
+            // Include the firstName in the placeholders dictionary
             var placeholders = new Dictionary<string, string>
-            {
-                { "Subject", message.Subject },
-                { "BodyContent", message.Body },
-                { "Year", DateTime.Now.Year.ToString() }
-            };
+    {
+        { "Subject", message.Subject },
+        { "firstName", message.firstName }, // Ensure the EmailMessage class has a FirstName property
+        { "BodyContent", message.Body },
+        { "Year", DateTime.Now.Year.ToString() }
+    };
 
+            // Load and replace placeholders in the template
             string template = LoadTemplate("Templates/EmailTemplate.html", placeholders);
             message.Body = template;
 
+            // Send the email
             await _email.SendEmailAsync(message);
+
             return Ok("Sent!");
         }
-
         [HttpGet("test")]
         public async Task<IActionResult> SendTest()
         {
+            // Define placeholders including the user's first name
             var placeholders = new Dictionary<string, string>
-            {
-                { "Subject", "Test Email" },
-                { "BodyContent", "<p>This is a test from your magical email service with a beautiful template!</p>" },
-                { "Year", DateTime.Now.Year.ToString() }
-            };
+    {
+        { "Subject", "Test Email" },
+        { "firstName", "John" }, 
+        { "BodyContent", "<p>This is a test from your magical email service with a beautiful template!</p>" },
+        { "Year", DateTime.Now.Year.ToString() }
+    };
 
+            // Load and replace placeholders in the template
             string template = LoadTemplate("Templates/EmailTemplate.html", placeholders);
 
+            // Create the email message
             var msg = new EmailMessage
             {
-                ToAddresses = new() { "pkwork1204@gmail.com" },
+                ToAddresses = new List<string> { "pkwork1204@gmail.com" },
                 Subject = placeholders["Subject"],
                 Body = template
             };
 
+            // Send the email
             await _email.SendEmailAsync(msg);
+
             return Ok("Email with template sent!");
         }
 

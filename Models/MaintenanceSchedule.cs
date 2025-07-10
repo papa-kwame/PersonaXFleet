@@ -9,8 +9,8 @@
 
         public DateTime CompletedDate { get; set; }
         public string Reason { get; set; }
-        public string AssignedMechanicId { get; set; }
-        public ApplicationUser AssignedMechanic { get; set; }
+        public string  ? AssignedMechanicId { get; set; }
+        public ApplicationUser ? AssignedMechanic { get; set; }
         public string Status { get; set; }
         public string Comments { get; set; }
 

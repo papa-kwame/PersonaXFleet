@@ -1,4 +1,6 @@
-﻿namespace PersonaXFleet.DTOs
+﻿using PersonaXFleet.Models;
+
+namespace PersonaXFleet.DTOs
 {
     public class VehicleDto
     {
@@ -25,7 +27,6 @@
         public DateTime? RegistrationExpiry { get; set; }
         public DateTime? InsuranceExpiry { get; set; }
         public string Notes { get; set; }
-
-
+        public bool IsAssigned { get; set; }
     }
 }

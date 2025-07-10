@@ -67,7 +67,8 @@ public async Task<VehicleDto> CreateVehicleAsync(VehicleDto vehicleDto)
         RoadworthyExpiry = vehicleDto.RoadworthyExpiry,
         RegistrationExpiry = vehicleDto.RegistrationExpiry,
         InsuranceExpiry = vehicleDto.InsuranceExpiry,
-        Notes = vehicleDto.Notes
+        Notes = vehicleDto.Notes,
+       
     };
 
     _context.Vehicles.Add(vehicle);
@@ -157,7 +158,8 @@ public async Task<bool> DeleteVehicleAsync(string id)
                 RoadworthyExpiry = vehicle.RoadworthyExpiry,
                 RegistrationExpiry = vehicle.RegistrationExpiry,
                 InsuranceExpiry = vehicle.InsuranceExpiry,
-                Notes = vehicle.Notes
+                Notes = vehicle.Notes,
+                IsAssigned = !string.IsNullOrEmpty(vehicle.UserId)
             };
         }
 

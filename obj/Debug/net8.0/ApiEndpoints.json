@@ -351,12 +351,59 @@
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetFuelStatsByDateRange",
+    "RelativePath": "api/FuelLogs/stats/date-range",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "startDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "endDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
     "Method": "GetMonthlyFuelSummary",
     "RelativePath": "api/FuelLogs/stats/monthly-summary",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.FuelLogsController",
+    "Method": "GetUserFuelStatsByDateRange",
+    "RelativePath": "api/FuelLogs/stats/user/{userId}/date-range",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "startDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "endDate",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -451,17 +498,7 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[PersonaXFleet.Models.FuelLog, PersonaXFleet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.MaintenanceRequestController",

@@ -5,6 +5,8 @@
         public string Id { get; set; }
         public string MaintenanceRequestId { get; set; }
         public DateTime ? ScheduledDate { get; set; }
+
+        public DateTime CompletedDate { get; set; }
         public string Reason { get; set; }
         public string AssignedMechanicId { get; set; }
         public string AssignedMechanicName { get; set; }

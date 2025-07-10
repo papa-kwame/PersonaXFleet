@@ -52,11 +52,13 @@ namespace PersonaXFleet.Controllers
         private async Task SendEmailAsync(EmailMessage message)
         {
             var placeholders = new Dictionary<string, string>
-            {
-                { "Subject", message.Subject },
-                { "BodyContent", message.Body },
-                { "Year", DateTime.Now.Year.ToString() }
-            };
+
+                {
+                    { "firstName", message.firstName ?? "Failed to Fetch Name"},
+                    { "Subject", message.Subject },
+                    { "BodyContent", message.Body },
+                    { "Year", DateTime.Now.Year.ToString() }
+                };
 
             string template = LoadTemplate("Templates/EmailTemplate.html", placeholders);
             message.Body = template;
@@ -161,15 +163,19 @@ namespace PersonaXFleet.Controllers
                 return BadRequest(ModelState);
             if (string.IsNullOrEmpty(dto.UserId))
                 return Unauthorized();
+
             var user = await _userManager.FindByIdAsync(dto.UserId);
             if (user == null)
                 return NotFound("User not found");
+
             var hasAssignedVehicle = await _context.Vehicles.AnyAsync(v => v.UserId == dto.UserId);
             if (hasAssignedVehicle)
                 return BadRequest("User already has a vehicle assigned");
+
             var vehicle = await _context.Vehicles.FindAsync(dto.VehicleId);
             if (vehicle == null)
                 return NotFound("Vehicle not found");
+
             if (!string.IsNullOrEmpty(vehicle.UserId))
                 return BadRequest("Vehicle is already assigned to another user");
 
@@ -193,10 +199,11 @@ namespace PersonaXFleet.Controllers
                 VehicleId = dto.VehicleId,
                 RequestReason = dto.RequestReason,
                 RequestDate = DateTime.UtcNow,
-                CurrentStage = "Comment",
+                CurrentStage = "Comment", 
                 Status = VehicleRequestStatus.Pending,
                 CurrentRouteId = route.Id
             };
+
             _context.VehicleAssignmentRequests.Add(request);
             await _context.SaveChangesAsync();
 
@@ -209,16 +216,19 @@ namespace PersonaXFleet.Controllers
                 Timestamp = DateTime.UtcNow,
                 IsCompleted = true
             };
+
             _context.VehicleAssignmentTransactions.Add(creationTransaction);
             await _context.SaveChangesAsync();
 
-            var emailMessage = new EmailMessage
-            {
-                ToAddresses = new List<string> { user.Email },
+            var requesterEmail = new EmailMessage
+            {   firstName = user.UserName,
+                ToAddresses = new List<string> { "ofosupapa@gmail.com" },
                 Subject = "Vehicle Request Created",
                 Body = $"Your vehicle request for {vehicle.LicensePlate} has been created and is pending approval."
             };
-            await SendEmailAsync(emailMessage);
+            await SendEmailAsync(requesterEmail);
+
+            await NotifyUsersForStageAsync(request, request.CurrentStage);
 
             return Ok(new
             {
@@ -230,6 +240,36 @@ namespace PersonaXFleet.Controllers
             });
         }
 
+        private async Task NotifyUsersForStageAsync(VehicleAssignmentRequest request, string stageName)
+        {
+            var route = await _context.Routes
+                .Include(r => r.UserRoles)
+                .FirstOrDefaultAsync(r => r.Id == request.CurrentRouteId);
+
+            if (route == null) return;
+
+            var users = route.UserRoles
+                .Where(ur => ur.Role.Equals(stageName, StringComparison.OrdinalIgnoreCase))
+                .Select(ur => ur.UserId)
+                .Distinct();
+
+            foreach (var userId in users)
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    var email = new EmailMessage
+                 
+                    { 
+                        firstName = user.UserName,
+                        ToAddresses = new List<string> { "ofosupapa@gmail.com" },
+                        Subject = $"Action Required: Vehicle Assignment Request for {request.User.UserName}",
+                        Body = $"You are required to take action on vehicle assignment request by  {request.User.UserName} at the '{stageName}' stage."
+                    };
+                    await SendEmailAsync(email);
+                }
+            }
+        }
         [HttpPost("vehicle-requests/{id}/process-stage")]
         public async Task<IActionResult> ProcessVehicleRequestStage(string id, [FromBody] ProcessStageDto dto, [FromQuery] string userId)
         {
@@ -241,10 +281,11 @@ namespace PersonaXFleet.Controllers
                     .ThenInclude(r => r.UserRoles)
                         .ThenInclude(ur => ur.User)
                 .Include(r => r.Transactions)
+                .Include(r => r.Vehicle)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (request == null)
-                return NotFound();
+                return NotFound("Vehicle assignment request not found");
 
             bool isRequestorInCurrentStage = request.UserId == userId;
 
@@ -266,7 +307,6 @@ namespace PersonaXFleet.Controllers
                     };
                     _context.VehicleAssignmentTransactions.Add(skipTransaction);
                     await _context.SaveChangesAsync();
-                    await _context.Entry(request).Collection(r => r.Transactions).LoadAsync();
                 }
 
                 var requiredUsers = request.CurrentRoute.UserRoles
@@ -289,28 +329,22 @@ namespace PersonaXFleet.Controllers
 
                         var vehicle = await _context.Vehicles.FindAsync(request.VehicleId);
                         if (vehicle == null)
-                        {
                             return NotFound("Vehicle not found");
-                        }
 
                         var user = await _userManager.FindByIdAsync(request.UserId);
                         if (user == null)
-                        {
                             return NotFound("User not found");
-                        }
 
                         if (!string.IsNullOrEmpty(vehicle.UserId))
                         {
                             var previousAssignment = await _context.VehicleAssignmentHistories
                                 .FirstOrDefaultAsync(h => h.VehicleId == vehicle.Id && h.UnassignmentDate == null);
+
                             if (previousAssignment != null)
-                            {
                                 previousAssignment.UnassignmentDate = DateTime.UtcNow;
-                            }
                         }
 
                         vehicle.UserId = user.Id;
-                        vehicle.User = user;
 
                         _context.VehicleAssignmentHistories.Add(new VehicleAssignmentHistory
                         {
@@ -323,10 +357,12 @@ namespace PersonaXFleet.Controllers
 
                         var emailMessage = new EmailMessage
                         {
-                            ToAddresses = new List<string> { user.Email },
+                            ToAddresses = new List<string> { "ofosupapa@gmail.com" },
                             Subject = "Vehicle Request Approved",
-                            Body = $"Your vehicle request for {vehicle.LicensePlate} has been approved."
+                            Body = $"Your vehicle request for {vehicle.LicensePlate} has been approved.",
+                            firstName = user.UserName
                         };
+
                         await SendEmailAsync(emailMessage);
 
                         return Ok(new
@@ -355,22 +391,25 @@ namespace PersonaXFleet.Controllers
                     request.CurrentStage = nextStage;
                     await _context.SaveChangesAsync();
 
-                    var nextStageApprovers = request.CurrentRoute.UserRoles
+                    var nextStageApprover = request.CurrentRoute.UserRoles
                         .Where(ur => ur.Role.Equals(nextStage, StringComparison.OrdinalIgnoreCase))
-                        .Select(ur => ur.User.Email)
-                        .ToList();
+                        .Select(ur => new { Email = ur.User.Email, Name = ur.User.UserName })
+                        .FirstOrDefault();
 
-                    if (nextStageApprovers.Any())
+                    if (nextStageApprover != null)
                     {
                         var emailMessage = new EmailMessage
                         {
-                            ToAddresses = nextStageApprovers,
+                            ToAddresses = new List<string> { "ofosupapa@gmail.com" },
                             Subject = $"Action Required: Vehicle Request in {nextStage} Stage",
-                            Body = $"The vehicle request for {request.Vehicle.LicensePlate} has moved to the {nextStage} stage and requires your approval."
+                            Body = $"The vehicle request for {request.Vehicle.LicensePlate} has moved to the {nextStage} stage and requires your approval.",
+                            firstName = nextStageApprover.Name
                         };
+
                         await SendEmailAsync(emailMessage);
                     }
                 }
+
                 return NoContent();
             }
 
@@ -398,7 +437,6 @@ namespace PersonaXFleet.Controllers
 
             _context.VehicleAssignmentTransactions.Add(transaction);
             await _context.SaveChangesAsync();
-            await _context.Entry(request).Collection(r => r.Transactions).LoadAsync();
 
             var requiredAfter = request.CurrentRoute.UserRoles
                 .Where(ur => ur.Role.Equals(request.CurrentStage, StringComparison.OrdinalIgnoreCase))
@@ -420,29 +458,24 @@ namespace PersonaXFleet.Controllers
 
                     var vehicle = await _context.Vehicles.FindAsync(request.VehicleId);
                     if (vehicle == null)
-                    {
                         return NotFound("Vehicle not found");
-                    }
 
                     var user = await _userManager.FindByIdAsync(request.UserId);
                     if (user == null)
-                    {
                         return NotFound("User not found");
-                    }
 
                     if (!string.IsNullOrEmpty(vehicle.UserId))
                     {
                         var previousAssignment = await _context.VehicleAssignmentHistories
                             .FirstOrDefaultAsync(h => h.VehicleId == vehicle.Id && h.UnassignmentDate == null);
+
                         if (previousAssignment != null)
-                        {
                             previousAssignment.UnassignmentDate = DateTime.UtcNow;
-                        }
                     }
 
                     vehicle.UserId = user.Id;
-                    vehicle.User = user;
 
+                    // Add entry to VehicleAssignmentHistories
                     _context.VehicleAssignmentHistories.Add(new VehicleAssignmentHistory
                     {
                         VehicleId = vehicle.Id,
@@ -454,10 +487,12 @@ namespace PersonaXFleet.Controllers
 
                     var emailMessage = new EmailMessage
                     {
-                        ToAddresses = new List<string> { user.Email },
+                        ToAddresses = new List<string> { "ofosupapa@gmail.com" },
                         Subject = "Vehicle Request Approved",
-                        Body = $"Your vehicle request for {vehicle.LicensePlate} has been approved."
+                        Body = $"Your vehicle request for {vehicle.LicensePlate} has been approved.",
+                        firstName = user.UserName
                     };
+
                     await SendEmailAsync(emailMessage);
 
                     return Ok(new
@@ -486,19 +521,21 @@ namespace PersonaXFleet.Controllers
                 request.CurrentStage = nextStage;
                 await _context.SaveChangesAsync();
 
-                var nextStageApprovers = request.CurrentRoute.UserRoles
+                var nextStageApprover = request.CurrentRoute.UserRoles
                     .Where(ur => ur.Role.Equals(nextStage, StringComparison.OrdinalIgnoreCase))
-                    .Select(ur => ur.User.Email)
-                    .ToList();
+                    .Select(ur => new { Email = ur.User.Email, Name = ur.User.UserName })
+                    .FirstOrDefault();
 
-                if (nextStageApprovers.Any())
+                if (nextStageApprover != null)
                 {
                     var emailMessage = new EmailMessage
                     {
-                        ToAddresses = nextStageApprovers,
+                        ToAddresses = new List<string> { "ofosupapa@gmail.com" },
                         Subject = $"Action Required: Vehicle Request in {nextStage} Stage",
-                        Body = $"The vehicle request for {request.Vehicle.LicensePlate} has moved to the {nextStage} stage and requires your approval."
+                        Body = $"The vehicle request for {request.Vehicle.LicensePlate} has moved to the {nextStage} stage and requires your approval.",
+                        firstName = nextStageApprover.Name
                     };
+
                     await SendEmailAsync(emailMessage);
                 }
             }
@@ -526,6 +563,7 @@ namespace PersonaXFleet.Controllers
                 StageComments = stageComments
             });
         }
+
 
         [HttpPost("{id}/reject")]
         public async Task<IActionResult> RejectVehicleRequest(string id, [FromQuery] string userId, [FromBody] string rejectionReason)
@@ -589,7 +627,8 @@ namespace PersonaXFleet.Controllers
                 {
                     var emailMessage = new EmailMessage
                     {
-                        ToAddresses = new List<string> { user.Email },
+                        firstName = user.UserName,
+                        ToAddresses = new List<string> { "ofosupapa@gmail.com" },
                         Subject = "Vehicle Request Rejected",
                         Body = $"Your vehicle request has been rejected. Reason: {rejectionReason}.Apologies for any inconvenience."
                     };
@@ -646,7 +685,8 @@ namespace PersonaXFleet.Controllers
 
             var emailMessage = new EmailMessage
             {
-                ToAddresses = new List<string> { user.Email },
+                firstName = user.UserName,
+                ToAddresses = new List<string> { "ofosupapa@gmail.com"},
                 Subject = "Vehicle Assigned",
                 Body = $"You have been assigned the vehicle with license plate {vehicle.LicensePlate} report to front desk to receive the keys."
             };
@@ -661,7 +701,6 @@ namespace PersonaXFleet.Controllers
                 VehicleLicensePlate = vehicle.LicensePlate
             });
         }
-
         [HttpPost("Unassign")]
         public async Task<IActionResult> UnassignVehicle([FromBody] string vehicleId)
         {
@@ -699,10 +738,12 @@ namespace PersonaXFleet.Controllers
                 {
                     var emailMessage = new EmailMessage
                     {
-                        ToAddresses = new List<string> { user.Email },
+                        firstName = user.UserName,
+                        ToAddresses = new List<string> { "ofosupapa@gmail.com" },
                         Subject = "Vehicle Unassigned",
-                        Body = $"The vehicle with license plate  {vehicle.LicensePlate} has been unassigned from you do well to return it to the office premise within 3 days and submit keys to front desk ."
+                        Body = $"The vehicle with license plate {vehicle.LicensePlate} has been unassigned from you. Please return it to the office premises within 3 days and submit the keys to the front desk."
                     };
+
                     await SendEmailAsync(emailMessage);
                 }
 
@@ -717,6 +758,7 @@ namespace PersonaXFleet.Controllers
                 return StatusCode(500, $"Error unassigning vehicle: {ex.Message}");
             }
         }
+
 
         private string GetNextStage(string currentStage)
         {
@@ -769,7 +811,7 @@ namespace PersonaXFleet.Controllers
                     {
                         r.Vehicle.Id,
                         r.Vehicle.Make,
-                        r.Vehicle.Model,
+                        r.Vehicle.Model,        
                         r.Vehicle.LicensePlate
                     }
                 }).ToListAsync();

@@ -90,18 +90,31 @@ namespace PersonaXFleet.Controllers
         }
 
         [HttpGet("vehicle/{vehicleId}")]
-        public async Task<ActionResult<IEnumerable<FuelLog>>> GetFuelLogsByVehicle(string vehicleId)
+        public async Task<IActionResult> GetFuelLogsByVehicle(string vehicleId)
         {
-            var fuelLogs = await _context.FuelLogs
-                .Where(log => log.VehicleId == vehicleId)
+            var logs = await _context.FuelLogs
+                .Where(l => l.VehicleId == vehicleId)
+                .Include(l => l.User) // Eager load the User
                 .ToListAsync();
 
-            if (fuelLogs == null || !fuelLogs.Any())
+            // Optionally, map to a DTO to avoid circular references or overexposing user data
+            var result = logs.Select(log => new
             {
-                return NotFound();
-            }
+                log.Id,
+                log.VehicleId,
+                log.UserId,
+                User = log.User == null ? null : new
+                {
+                    log.User.Id,
+                    log.User.UserName,
+                },
+                log.FuelAmount,
+                log.Cost,
+                log.Date,
+                log.FuelStation
+            });
 
-            return fuelLogs;
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -234,6 +247,65 @@ namespace PersonaXFleet.Controllers
                 dailyExpenses
             });
         }
+
+
+        [HttpGet("stats/date-range")]
+        public async Task<IActionResult> GetFuelStatsByDateRange(DateTime startDate, DateTime endDate)
+        {
+            var logs = await _context.FuelLogs
+                .Where(fl => fl.Date >= startDate && fl.Date <= endDate)
+                .ToListAsync();
+
+            if (!logs.Any())
+            {
+                return NotFound("No fuel logs found within the specified date range.");
+            }
+
+            var totalFuel = logs.Sum(fl => fl.FuelAmount);
+            var totalCost = logs.Sum(fl => fl.Cost);
+            var averageCostPerLitre = totalFuel > 0 ? totalCost / totalFuel : 0;
+
+            return Ok(new
+            {
+                StartDate = startDate.ToString("yyyy-MM-dd"),
+                EndDate = endDate.ToString("yyyy-MM-dd"),
+                TotalFuel = totalFuel,
+                TotalCost = totalCost,
+                AverageCostPerLitre = averageCostPerLitre
+            });
+        }
+
+
+        [HttpGet("stats/user/{userId}/date-range")]
+        public async Task<IActionResult> GetUserFuelStatsByDateRange(string userId, DateTime startDate, DateTime endDate)
+        {
+            var logs = await _context.FuelLogs
+                .Where(fl => fl.UserId == userId && fl.Date >= startDate && fl.Date <= endDate)
+                .ToListAsync();
+
+            if (!logs.Any())
+            {
+                return NotFound("No fuel logs found for this user within the specified date range.");
+            }
+
+            var totalFuel = logs.Sum(fl => fl.FuelAmount);
+            var totalCost = logs.Sum(fl => fl.Cost);
+            var averageCostPerLitre = totalFuel > 0 ? totalCost / totalFuel : 0;
+
+            var user = await _context.Users.FindAsync(userId);
+
+            return Ok(new
+            {
+                UserId = userId,
+                UserName = user?.UserName ?? "Unknown",
+                StartDate = startDate.ToString("yyyy-MM-dd"),
+                EndDate = endDate.ToString("yyyy-MM-dd"),
+                TotalFuel = totalFuel,
+                TotalCost = totalCost,
+                AverageCostPerLitre = averageCostPerLitre
+            });
+        }
+
 
         [HttpGet("stats/{vehicleId}")]
         public async Task<IActionResult> GetVehicleFuelStats(

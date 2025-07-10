@@ -41,14 +41,22 @@ namespace PersonaXFleet.Services
             await smtp.DisconnectAsync(true);
         }
 
-        public async Task SendMaintenanceRequestEmailAsync(string userEmail, string action, MaintenanceRequest request)
+        public async Task SendMaintenanceRequestEmailAsync(string userEmail, string userFirstName, string action, MaintenanceRequest request)
         {
             var email = new MimeMessage();
             email.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));
             email.To.Add(new MailboxAddress("", userEmail));
             email.Subject = $"Maintenance Request {action}";
 
-            var body = $"The maintenance request {request.MaintenanceId} has been {action}.";
+            var model = new
+            {
+                firstName = userFirstName, 
+                BodyContent = $"The maintenance request {request.MaintenanceId} has been {action}.",
+                Year = DateTime.Now.Year
+            };
+
+            var body = await _razorEngine.CompileRenderAsync("EmailTemplate.cshtml", model);
+
             var bodyBuilder = new BodyBuilder { HtmlBody = body };
             email.Body = bodyBuilder.ToMessageBody();
 
@@ -57,6 +65,11 @@ namespace PersonaXFleet.Services
             await smtp.AuthenticateAsync(_settings.Username, _settings.Password);
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
+        }
+
+        public Task SendMaintenanceRequestEmailAsync(string userEmail, string action, MaintenanceRequest request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

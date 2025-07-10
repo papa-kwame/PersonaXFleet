@@ -4,91 +4,36 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{Subject}}</title>
-    <!--[if mso]>
-    <style type="text/css">
-        body, table, td, a { font-family: Arial, sans-serif !important; }
-    </style>
-    <![endif]-->
+
 </head>
 <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f7fa;">
-    <!-- Main Container -->
     <table width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f5f7fa">
         <tr>
             <td align="center">
-                <!-- Email Container -->
                 <table width="600" cellspacing="0" cellpadding="0" border="0" bgcolor="#ffffff" style="margin: 30px auto; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.08);">
-                    <!-- Header -->
-                    <tr>
-                        <td bgcolor="#4361ee" style="padding: 40px 20px; text-align: center; background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);">
-                            <img src="https://www.persol.net/wp-content/uploads/2024/05/Persol-Logo-small.png" alt="PersonaX Fleet" width="180" style="width: 180px; height: auto; margin-bottom: 20px;">
-                            <h1 style="margin: 20px 0 0; font-size: 28px; font-weight: 600; color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.1);">{{Subject}}</h1>
-                        </td>
-                    </tr>
-
-                    <!-- Body Content -->
                     <tr>
                         <td style="padding: 40px 40px;">
-                            <p style="margin: 0 0 25px; font-size: 16px; color: #2b2d42;">Dear Valued User,</p>
+                            <p style="margin: 0 0 25px; font-size: 14px; color: #2b2d42;">Dear {{firstName}},</p>
 
-                            {{BodyContent}}
-
-                            <!-- Divider -->
-                            <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
-                                <tr>
-                                    <td height="1" bgcolor="#e9ecef" style="line-height: 1px; font-size: 1px;">&nbsp;</td>
-                                </tr>
-                            </table>
+                            <p style="margin: 0 0 25px; font-size: 18px; color: #2b2d42;">
+                                {{BodyContent}}
+                            </p>
+                                <table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+                                    <tr>
+                                        <td height="1" bgcolor="#e9ecef" style="line-height: 1px; font-size: 1px;">&nbsp;</td>
+                                    </tr>
+                                </table>
 
                             <p style="margin: 0 0 25px; font-size: 15px; color: #8d99ae; line-height: 1.6;">Should you have any questions or require further assistance, our support team is always ready to help.</p>
 
-                            <!-- Button & Signature -->
                             <table width="100%" cellspacing="0" cellpadding="0" border="0">
                                 <tr>
                                     <td valign="top" style="padding-bottom: 20px;">
                                         <p style="margin: 0; font-size: 15px; font-weight: 500; color: #2b2d42;">Best regards,</p>
                                         <p style="margin: 4px 0 0; font-weight: 600; font-size: 16px; color: #4361ee;">The PersonaX Team</p>
                                     </td>
-                                    <td valign="top" align="right" style="padding-bottom: 20px;">
-                                        <a href="http://localhost:5173/login" style="display: inline-block; background: linear-gradient(to right, #4361ee, #3a0ca3); color: #ffffff; text-decoration: none; padding: 16px 36px; border-radius: 8px; font-weight: 600; font-size: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Access Your Portal</a>
-                                    </td>
                                 </tr>
                             </table>
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td bgcolor="#f8f9fa" style="padding: 30px 20px; border-top: 1px solid #e9ecef;">
-                            <!-- Social Icons -->
-                            <table align="center" cellspacing="0" cellpadding="0" border="0">
-                                <tr>
-                                    <td style="padding: 0 8px;">
-                                        <a href="https://facebook.com/personaxfleet"><img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" width="24" style="width: 24px; height: auto;" alt="Facebook"></a>
-                                    </td>
-                                    <td style="padding: 0 8px;">
-                                        <a href="https://twitter.com/persolsystems"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" width="24" style="width: 24px; height: auto;" alt="Twitter"></a>
-                                    </td>
-                                    <td style="padding: 0 8px;">
-                                        <a href="https://linkedin.com/company/personaxfleet"><img src="https://cdn-icons-png.flaticon.com/512/3536/3536505.png" width="24" style="width: 24px; height: auto;" alt="LinkedIn"></a>
-                                    </td>
-                                    <td style="padding: 0 8px;">
-                                        <a href="https://instagram.com/personaxfleet"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="24" style="width: 24px; height: auto;" alt="Instagram"></a>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Footer Text -->
-                            <p style="margin: 20px 0; font-size: 14px; color: #8d99ae; text-align: center; line-height: 1.5;">
-                                &copy; {{Year}} PersonaX Fleet. All rights reserved.<br>
-                                N02 Dodi Link, Airport Residential Accra
-                            </p>
-
-                            <!-- Footer Links -->
-                            <p style="margin: 0; font-size: 12px; color: #8d99ae; text-align: center;">
-                                <a href="https://personaxfleet.com/privacy" style="color: #8d99ae; text-decoration: underline;">Privacy Policy</a> &nbsp;|&nbsp;
-                                <a href="https://personaxfleet.com/terms" style="color: #8d99ae; text-decoration: underline;">Terms of Service</a> &nbsp;|&nbsp;
-                                <a href="https://personaxfleet.com/unsubscribe" style="color: #8d99ae; text-decoration: underline;">Unsubscribe</a>
-                            </p>
                         </td>
                     </tr>
                 </table>

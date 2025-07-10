@@ -34,7 +34,7 @@ using Microsoft.VisualBasic.FileIO;
             [StringLength(30)]
             public string Color { get; set; }
 
-            public VehicleStatus Status { get; set; }
+            public VehicleStatus ? Status { get; set; }
 
             public int CurrentMileage { get; set; }
 
