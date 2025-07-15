@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using PersonaXFleet.Data;
 using PersonaXFleet.DTOs;
@@ -20,17 +21,23 @@ namespace PersonaXFleet.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IWebHostEnvironment _env;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
         public VehicleAssignmentController(
             AuthDbContext context,
             UserManager<ApplicationUser> userManager,
             IEmailService emailService,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            INotificationService notificationService,
+            IHubContext<NotificationHub> hubContext)
         {
             _context = context;
             _userManager = userManager;
             _emailService = emailService;
             _env = env;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
         }
 
         private string LoadTemplate(string relativePath, Dictionary<string, string> placeholders)
@@ -227,6 +234,15 @@ namespace PersonaXFleet.Controllers
                 Body = $"Your vehicle request for {vehicle.LicensePlate} has been created and is pending approval."
             };
             await SendEmailAsync(requesterEmail);
+            await _notificationService.CreateNotificationAsync(
+                user.Id,
+                "Vehicle Request Created",
+                $"Your vehicle request for {vehicle.LicensePlate} has been created and is pending approval.",
+                NotificationType.System,
+                request.Id,
+                null
+            );
+            await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
 
             await NotifyUsersForStageAsync(request, request.CurrentStage);
 
@@ -301,7 +317,7 @@ namespace PersonaXFleet.Controllers
                         VehicleAssignmentRequestId = request.Id,
                         UserId = userId,
                         Stage = request.CurrentStage,
-                        Comments = "Automatically skipped for requestor",
+                        Comments = "",
                         Timestamp = DateTime.UtcNow,
                         IsCompleted = true
                     };
@@ -364,6 +380,15 @@ namespace PersonaXFleet.Controllers
                         };
 
                         await SendEmailAsync(emailMessage);
+                        await _notificationService.CreateNotificationAsync(
+                            user.Id,
+                            "Vehicle Request Approved",
+                            $"Your vehicle request for {vehicle.LicensePlate} has been approved.",
+                            NotificationType.System,
+                            request.Id,
+                            null
+                        );
+                        await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
 
                         return Ok(new
                         {
@@ -393,7 +418,7 @@ namespace PersonaXFleet.Controllers
 
                     var nextStageApprover = request.CurrentRoute.UserRoles
                         .Where(ur => ur.Role.Equals(nextStage, StringComparison.OrdinalIgnoreCase))
-                        .Select(ur => new { Email = ur.User.Email, Name = ur.User.UserName })
+                        .Select(ur => new { Email = ur.User.Email, Name = ur.User.UserName ,Id = ur.Id })
                         .FirstOrDefault();
 
                     if (nextStageApprover != null)
@@ -407,6 +432,17 @@ namespace PersonaXFleet.Controllers
                         };
 
                         await SendEmailAsync(emailMessage);
+
+                        await _notificationService.CreateNotificationAsync(
+                        nextStageApprover.Id,
+                        "Requires Approval",
+                        $" A vehicle request for {request.Vehicle.LicensePlate} requires your approval.",
+                        NotificationType.Vehicle,
+                        request.Id,
+                        null
+                    );
+
+                        await _hubContext.Clients.Group(nextStageApprover.Id).SendAsync("NewNotification");
                     }
                 }
 
@@ -475,7 +511,6 @@ namespace PersonaXFleet.Controllers
 
                     vehicle.UserId = user.Id;
 
-                    // Add entry to VehicleAssignmentHistories
                     _context.VehicleAssignmentHistories.Add(new VehicleAssignmentHistory
                     {
                         VehicleId = vehicle.Id,
@@ -494,6 +529,15 @@ namespace PersonaXFleet.Controllers
                     };
 
                     await SendEmailAsync(emailMessage);
+                    await _notificationService.CreateNotificationAsync(
+                        user.Id,
+                        "Vehicle Request Approved",
+                        $"Your vehicle request for {vehicle.LicensePlate} has been approved.",
+                        NotificationType.System,
+                        request.Id,
+                        null
+                    );
+                    await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
 
                     return Ok(new
                     {
@@ -523,7 +567,7 @@ namespace PersonaXFleet.Controllers
 
                 var nextStageApprover = request.CurrentRoute.UserRoles
                     .Where(ur => ur.Role.Equals(nextStage, StringComparison.OrdinalIgnoreCase))
-                    .Select(ur => new { Email = ur.User.Email, Name = ur.User.UserName })
+                    .Select(ur => new { Email = ur.User.Email, Name = ur.User.UserName ,Id = ur.User.Id})
                     .FirstOrDefault();
 
                 if (nextStageApprover != null)
@@ -537,6 +581,26 @@ namespace PersonaXFleet.Controllers
                     };
 
                     await SendEmailAsync(emailMessage);
+
+                     await _notificationService.CreateNotificationAsync(
+                        nextStageApprover.Id,
+                        "Action Required",
+                        $"The vehicle request for {request.Vehicle.LicensePlate} has moved to the {nextStage} stage and requires your approval.",
+                        NotificationType.System,
+                        request.Id,
+                        null
+                    );
+                    await _hubContext.Clients.Group(nextStageApprover.Id).SendAsync("NewNotification");
+
+                   await _notificationService.CreateNotificationAsync(
+                       request.UserId,
+                       "Request Update ",
+                       $"The vehicle request you made has moved to the {nextStage} stage ",
+                       NotificationType.System,
+                       request.Id,
+                       null
+                    );
+                    await _hubContext.Clients.Group(request.UserId).SendAsync("NewNotification");
                 }
             }
 
@@ -600,7 +664,7 @@ namespace PersonaXFleet.Controllers
                 VehicleAssignmentRequestId = request.Id,
                 UserId = userId,
                 Stage = request.CurrentStage,
-                Comments = $"Rejected: {rejectionReason}",
+                Comments = $"",
                 Timestamp = DateTime.UtcNow,
                 IsCompleted = true
             };
@@ -633,6 +697,15 @@ namespace PersonaXFleet.Controllers
                         Body = $"Your vehicle request has been rejected. Reason: {rejectionReason}.Apologies for any inconvenience."
                     };
                     await SendEmailAsync(emailMessage);
+                    await _notificationService.CreateNotificationAsync(
+                        user.Id,
+                        "Vehicle Request Rejected",
+                        $"Your vehicle request has been rejected. Reason: {rejectionReason}.Apologies for any inconvenience.",
+                        NotificationType.System,
+                        request.Id,
+                        null
+                    );
+                    await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
                 }
 
                 return Ok(new
@@ -691,6 +764,15 @@ namespace PersonaXFleet.Controllers
                 Body = $"You have been assigned the vehicle with license plate {vehicle.LicensePlate} report to front desk to receive the keys."
             };
             await SendEmailAsync(emailMessage);
+            await _notificationService.CreateNotificationAsync(
+                user.Id,
+                "Vehicle Assigned",
+                $"You have been assigned the vehicle with license plate {vehicle.LicensePlate} report to front desk to receive the keys.",
+                NotificationType.System,
+                vehicle.Id,
+                null
+            );
+            await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
 
             return Ok(new
             {
@@ -745,6 +827,15 @@ namespace PersonaXFleet.Controllers
                     };
 
                     await SendEmailAsync(emailMessage);
+                    await _notificationService.CreateNotificationAsync(
+                        user.Id,
+                        "Vehicle Unassigned",
+                        $"The vehicle with license plate {vehicle.LicensePlate} has been unassigned from you. Please return it to the office premises within 3 days and submit the keys to the front desk.",
+                        NotificationType.System,
+                        vehicle.Id,
+                        null
+                    );
+                    await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
                 }
 
                 return Ok(new
@@ -825,7 +916,7 @@ namespace PersonaXFleet.Controllers
                 .Include(r => r.User)
                 .Include(r => r.Vehicle)
                 .Include(r => r.CurrentRoute)
-                .Where(r => r.Status != VehicleRequestStatus.Approved)
+                .Where(r => r.Status != VehicleRequestStatus.Approved && r.Status != VehicleRequestStatus.Rejected)
                 .OrderByDescending(r => r.RequestDate)
                 .Select(r => new
                 {
@@ -857,7 +948,7 @@ namespace PersonaXFleet.Controllers
                 .Include(r => r.User)
                 .Include(r => r.Vehicle)
                 .Include(r => r.CurrentRoute)
-                .Where(r => r.Status == VehicleRequestStatus.Approved)
+                .Where(r => r.Status == VehicleRequestStatus.Approved || r.Status == VehicleRequestStatus.Rejected)
                 .OrderByDescending(r => r.RequestDate)
                 .Select(r => new
                 {
@@ -891,7 +982,7 @@ namespace PersonaXFleet.Controllers
                 return NotFound("User not found");
             }
             var requests = await _context.VehicleAssignmentRequests
-                .Where(r => r.UserId == userId && r.Status != VehicleRequestStatus.Approved)
+                .Where(r => r.UserId == userId )
                 .Include(r => r.Vehicle)
                 .OrderByDescending(r => r.RequestDate)
                 .Select(r => new

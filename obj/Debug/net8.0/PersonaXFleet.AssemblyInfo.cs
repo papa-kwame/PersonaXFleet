@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PersonaXFleet")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d784187fdf858aa77b3b4e61b56dc97bf21c69c7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7b7c928f32b0f753b8027b844b14b7ce602766f7")]
 [assembly: System.Reflection.AssemblyProductAttribute("PersonaXFleet")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PersonaXFleet")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -2,11 +2,9 @@
 {
     public enum NotificationType
     {
-        MaintenanceRequest,
-        VehicleAssignment,
-        VehicleRequest,
-        ApprovalRequired,
-        StatusChange
+        Vehicle,        // Related to vehicle operations
+        Maintenance,    // Related to maintenance requests
+        System          // General system notifications
     }
 
 }

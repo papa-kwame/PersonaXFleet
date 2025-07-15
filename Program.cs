@@ -9,8 +9,15 @@ using Microsoft.AspNetCore.Cors;
 using PersonaXFleet.Services;
 using System.Reflection;
 using PersonaXFleet.Config;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File("Logs/app.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog();
 
 builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -22,6 +29,7 @@ builder.Services.AddScoped<IVehicleService, VehicleService>();
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<INotificationService, NotificationService>();
 
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -68,7 +76,7 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddSignalR();
 // --- Controllers ---
 builder.Services.AddControllers();
 
@@ -87,8 +95,10 @@ app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapControllers();
+
+
 
 // --- Seed roles/users on startup ---
 using (var scope = app.Services.CreateScope())

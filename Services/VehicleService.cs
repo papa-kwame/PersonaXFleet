@@ -163,6 +163,22 @@ public async Task<bool> DeleteVehicleAsync(string id)
             };
         }
 
+        public async Task<IEnumerable<VehicleDto>> GetVehiclesWithDueDatesAsync(int daysThreshold)
+        {
+            var today = DateTime.Today;
+            var maxDate = today.AddDays(daysThreshold);
+
+            var vehicles = await _context.Vehicles
+                .Where(v =>
+                    (v.NextServiceDue.HasValue && v.NextServiceDue.Value.Date <= maxDate) ||
+                    (v.RoadworthyExpiry.HasValue && v.RoadworthyExpiry.Value.Date <= maxDate) ||
+                    (v.RegistrationExpiry.HasValue && v.RegistrationExpiry.Value.Date <= maxDate) ||
+                    (v.InsuranceExpiry.HasValue && v.InsuranceExpiry.Value.Date <= maxDate))
+                .ToListAsync();
+
+            return vehicles.Select(MapToDto);
+        }
+
         Task IVehicleService.DeleteVehicleAsync(string id)
         {
             return DeleteVehicleAsync(id);

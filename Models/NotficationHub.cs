@@ -5,9 +5,11 @@ namespace PersonaXFleet.Models
 {
     public class NotificationHub : Hub
     {
-        public async Task JoinNotificationGroup(string userId)
+        public async Task JoinGroup(string userId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, userId);
         }
     }
+
+
 }

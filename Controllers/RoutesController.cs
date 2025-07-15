@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using PersonaXFleet.Data;
 using PersonaXFleet.DTOs;
 using PersonaXFleet.Models;
+using PersonaXFleet.Services;
 using System.Security.Claims;
+using System.Text;
 
 namespace PersonaXFleet.Controllers
 {
@@ -15,7 +18,10 @@ namespace PersonaXFleet.Controllers
     {
         private readonly AuthDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly IEmailService _emailService;
+        private readonly IWebHostEnvironment _env;
         private readonly string[] _validDepartments = {
     "Default",
     "Audit",
@@ -34,10 +40,46 @@ namespace PersonaXFleet.Controllers
 
         private readonly string[] _requiredRolesInOrder = { "Comment", "Review", "Commit", "Approve" };
 
-        public RoutesController(AuthDbContext context, UserManager<ApplicationUser> userManager)
+        public RoutesController(AuthDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment env, INotificationService notificationService, IHubContext<NotificationHub> hubContext, IEmailService emailService)
         {
             _context = context;
             _userManager = userManager;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
+            _emailService = emailService;
+            _env = env;
+        }
+
+        private string LoadTemplate(string relativePath, Dictionary<string, string> placeholders)
+        {
+            string path = Path.Combine(_env.ContentRootPath, relativePath);
+            if (!System.IO.File.Exists(path))
+            {
+                Console.WriteLine($"Template not found at: {path}");
+                return "<p>Email template not found.</p>";
+            }
+            string template = System.IO.File.ReadAllText(path, Encoding.UTF8);
+            foreach (var placeholder in placeholders)
+            {
+                template = template.Replace($"{{{{{placeholder.Key}}}}}", placeholder.Value);
+            }
+            return template;
+        }
+
+        private async Task SendEmailAsync(EmailMessage message)
+        {
+            var placeholders = new Dictionary<string, string>
+    {
+        { "firstName", message.firstName },
+        { "Subject", message.Subject },
+        { "BodyContent", message.Body },
+        { "Year", DateTime.Now.Year.ToString() }
+    };
+
+            string template = LoadTemplate("Templates/EmailTemplate.html", placeholders);
+            message.Body = template;
+
+            await _emailService.SendEmailAsync(message);
         }
 
         [HttpGet]
@@ -138,6 +180,32 @@ namespace PersonaXFleet.Controllers
             _context.Routes.Add(route);
             await _context.SaveChangesAsync();
 
+            foreach (var userRole in route.UserRoles)
+            {
+                var user = await _userManager.FindByIdAsync(userRole.UserId);
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    var emailMessage = new EmailMessage
+                    {
+                        firstName = user.UserName,
+                        ToAddresses = new List<string> { user.Email },
+                        Subject = "Added to Route",
+                        Body = $"You have been added to the route '{route.Name}' as '{userRole.Role}'."
+                    };
+                    await SendEmailAsync(emailMessage);
+
+                    await _notificationService.CreateNotificationAsync(
+                        user.Id,
+                        "Added to Route",
+                        $"You have been added to the route '{route.Name}' as '{userRole.Role}'.",
+                        PersonaXFleet.Models.Enums.NotificationType.System,
+                        route.Id,
+                        null
+                    );
+                    await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
+                }
+            }
+
             return CreatedAtAction(nameof(GetRoute), new { id = route.Id }, route);
         }
 
@@ -161,18 +229,15 @@ namespace PersonaXFleet.Controllers
             route.Department = dto.Department;
             route.Description = dto.Description;
 
-            // Update user roles
             var existingRoles = route.UserRoles.ToList();
             var newRoles = dto.Users.ToList();
 
-            // Remove roles not in new list
             foreach (var existing in existingRoles)
             {
                 if (!newRoles.Any(nr => nr.UserId == existing.UserId && nr.Role == existing.Role))
                     _context.UserRouteRoles.Remove(existing);
             }
 
-            // Add new roles
             foreach (var newRole in newRoles)
             {
                 if (!existingRoles.Any(er => er.UserId == newRole.UserId && er.Role == newRole.Role))
@@ -182,6 +247,29 @@ namespace PersonaXFleet.Controllers
                         UserId = newRole.UserId,
                         Role = newRole.Role
                     });
+
+                    var user = await _userManager.FindByIdAsync(newRole.UserId);
+                    if (user != null && !string.IsNullOrEmpty(user.Email))
+                    {
+                        var emailMessage = new EmailMessage
+                        {
+                            firstName = user.UserName,
+                            ToAddresses = new List<string> { user.Email },
+                            Subject = "Added to Route",
+                            Body = $"You have been added to the route '{route.Name}' as '{newRole.Role}'."
+                        };
+                        await SendEmailAsync(emailMessage);
+
+                        await _notificationService.CreateNotificationAsync(
+                            user.Id,
+                            "Added to Route",
+                            $"You have been added to the route '{route.Name}' as '{newRole.Role}'.",
+                            PersonaXFleet.Models.Enums.NotificationType.System,
+                            route.Id,
+                            null
+                        );
+                        await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
+                    }
                 }
             }
 

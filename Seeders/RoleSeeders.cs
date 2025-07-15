@@ -6,7 +6,7 @@ namespace PersonaXFleet.Seeders
     {
         public static async Task SeedRoles(RoleManager<IdentityRole> roleManager)
         {
-            string[] roles = { "Admin", "User", "Mechanic","Finance","Management","Supervisor"};
+            string[] roles = { "Admin", "User", "Mechanic"};
             foreach (var role in roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))

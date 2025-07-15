@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using PersonaXFleet.Data;
 using PersonaXFleet.DTOs;
@@ -10,6 +11,8 @@ using PersonaXFleet.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Logging;
+
 
 namespace PersonaXFleet.Controllers
 {
@@ -17,17 +20,26 @@ namespace PersonaXFleet.Controllers
     [ApiController]
     public class MaintenanceRequestController : ControllerBase
     {
+
         private readonly AuthDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IWebHostEnvironment _env;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly ILogger<MaintenanceRequestController> _logger; 
 
-        public MaintenanceRequestController(AuthDbContext context, UserManager<ApplicationUser> userManager, IEmailService emailService, IWebHostEnvironment env)
+
+        public MaintenanceRequestController(AuthDbContext context, UserManager<ApplicationUser> userManager, IEmailService emailService, IWebHostEnvironment env, INotificationService notificationService, IHubContext<NotificationHub> hubContext, ILogger<MaintenanceRequestController> logger)
         {
             _context = context;
             _userManager = userManager;
             _emailService = emailService;
             _env = env;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
+            _logger = logger;
+    
         }
 
         private string LoadTemplate(string relativePath, Dictionary<string, string> placeholders)
@@ -219,6 +231,7 @@ namespace PersonaXFleet.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateMaintenanceRequest([FromBody] CreateMaintenanceRequestDto requestDto, string userId)
         {
+            _logger.LogInformation("Creating maintenance request for user: {UserId}", userId);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -292,6 +305,7 @@ namespace PersonaXFleet.Controllers
         [HttpPost("personal")]
         public async Task<IActionResult> CreatePersonalMaintenanceRequest([FromBody] CreatePersonalMaintenanceRequestDto requestDto, [FromQuery] string userId)
         {
+            _logger.LogInformation("Creating personal maintenance request for user: {UserId}", userId);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             if (string.IsNullOrEmpty(userId))
@@ -328,7 +342,7 @@ namespace PersonaXFleet.Controllers
                 Status = MaintenanceRequestStatus.Pending,
                 Priority = requestDto.Priority,
                 CurrentRouteId = route.Id,
-                CurrentStage = "Comment" // Initial stage
+                CurrentStage = "Comment" 
             };
 
             _context.MaintenanceRequests.Add(request);
@@ -349,7 +363,6 @@ namespace PersonaXFleet.Controllers
 
             await ProcessRequestorSkipsAsync(request, route, userId);
 
-            // Notify the requester
             var requesterEmail = new EmailMessage
             {
                 firstName= user.UserName,
@@ -358,7 +371,15 @@ namespace PersonaXFleet.Controllers
                 Body = $"Your maintenance request for a {request.RequestType} for {vehicle.LicensePlate} has been created and is pending approval."
             };
             await SendEmailAsync(requesterEmail);
-
+            await _notificationService.CreateNotificationAsync(
+                user.Id,
+                "Vehicle Request Created",
+                $"Your maintenance request for {vehicle.LicensePlate} has been created and is pending approval.",
+                NotificationType.System,
+                request.MaintenanceId,
+                null
+            );
+            await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
 
             await NotifyUsersForStageAsync(request, request.CurrentStage);
 
@@ -595,6 +616,18 @@ namespace PersonaXFleet.Controllers
 
                     await SendEmailAsync(emailMessage1);
                     await SendEmailAsync(emailMessage2);
+
+                    await _notificationService.CreateNotificationAsync(
+
+                    request.RequestedByUserId,
+                    "Request Approved ",
+                    $"Dear {request.RequestedByUser.UserName} ,your request has been approved",
+                    NotificationType.System,
+                    request.MaintenanceId,
+                    $"ACTION REQUIRED FOR {nextStage}"
+                    );
+
+                    await _hubContext.Clients.Group(request.RequestedByUserId).SendAsync("NewNotification");
                 }
 
 
@@ -627,6 +660,31 @@ namespace PersonaXFleet.Controllers
                             };
                             await SendEmailAsync(emailMessage);
                         }
+                        await _notificationService.CreateNotificationAsync(
+
+                        nextUserId,
+                        "Action Reqiured on Request",
+                        $"Action required at {nextStage} on {request.RequestedByUser.UserName}'s request  ",
+                        NotificationType.Maintenance,
+                        request.MaintenanceId,
+                        $"Action required at {nextStage} on {request.RequestedByUser.UserName}'s request "
+                        );
+
+                        await _hubContext.Clients.Group(nextUserId).SendAsync("NewNotification");
+
+                        await _notificationService.CreateNotificationAsync(
+
+                            request.RequestedByUserId,
+                            "Request Update ",
+                            $"Your request has moved to the {nextStage} stage",
+                            NotificationType.Maintenance,
+                            request.MaintenanceId,
+                            $"Action required at {nextStage} on {request.RequestedByUser.UserName}'s request "
+                            );
+
+                        await _hubContext.Clients.Group(request.RequestedByUserId).SendAsync("NewNotification");
+
+
                     }
                 }
             }
@@ -854,138 +912,57 @@ namespace PersonaXFleet.Controllers
         {
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
+
             var request = await _context.MaintenanceRequests
                 .Include(r => r.CurrentRoute)
                     .ThenInclude(r => r.UserRoles)
                 .Include(r => r.Transactions)
                 .FirstOrDefaultAsync(r => r.MaintenanceId == id);
+
             if (request == null)
                 return NotFound();
+
             if (request.Status == MaintenanceRequestStatus.Approved || request.Status == MaintenanceRequestStatus.Rejected)
                 return BadRequest("Request is already finalized.");
+
             bool isRequestorInCurrentStage = request.RequestedByUserId == userId;
+
             if (isRequestorInCurrentStage)
             {
-                var existingTransaction = request.Transactions
-                    .FirstOrDefault(t => t.UserId == userId && t.Action == request.CurrentStage);
-                if (existingTransaction == null)
-                {
-                    var skipTransaction = new MaintenanceTransaction
-                    {
-                        MaintenanceRequestId = request.MaintenanceId,
-                        UserId = userId,
-                        Action = request.CurrentStage,
-                        Comments = "Automatically skipped for requestor",
-                        Timestamp = DateTime.UtcNow,
-                        IsCompleted = true
-                    };
-                    _context.MaintenanceTransactions.Add(skipTransaction);
-                    await _context.SaveChangesAsync();
-                    await _context.Entry(request).Collection(r => r.Transactions).LoadAsync();
-                }
-                var requiredUsers = request.CurrentRoute.UserRoles
-                    .Where(ur => ur.Role.Equals(request.CurrentStage, StringComparison.OrdinalIgnoreCase))
-                    .Select(ur => ur.UserId).Distinct().ToList();
-                var completedUsers = request.Transactions
-                    .Where(t => t.Action == request.CurrentStage && t.IsCompleted)
-                    .Select(t => t.UserId).Distinct().ToList();
-                if (completedUsers.Count >= requiredUsers.Count)
-                {
-                    var nextStage = GetNextStage(request.CurrentStage);
-                    if (nextStage == "Complete")
-                    {
-                        request.Status = MaintenanceRequestStatus.Rejected;
-                        request.AdminComments = $"Rejected: {rejectionReason}";
-                        request.CurrentStage = nextStage;
-                        await _context.SaveChangesAsync();
-                        var user = await _userManager.FindByIdAsync(userId);
-                        if (user != null && !string.IsNullOrEmpty(user.Email))
-                        {
-                            var emailMessage = new EmailMessage
-                            { firstName = user.UserName,
-                                ToAddresses = new List<string> { "ofosupapa@gmail.com"},
-                                Subject = "Maintenance Request Rejected",
-                                Body = $"Your maintenance request has been rejected. Reason: {rejectionReason}"
-                            };
-                            await SendEmailAsync(emailMessage);
-                        }
-                        return Ok(new
-                        {
-                            Message = "Request rejected.",
-                            RequestId = request.MaintenanceId
-                        });
-                    }
-                    request.CurrentStage = nextStage;
-                    await _context.SaveChangesAsync();
-                }
-                return NoContent();
+                await HandleRequestorInCurrentStage(request, userId);
             }
-            var userRole = request.CurrentRoute.UserRoles
-                .FirstOrDefault(ur => ur.UserId == userId && ur.Role.Equals(request.CurrentStage, StringComparison.OrdinalIgnoreCase));
-            var existingNormalTransaction = request.Transactions
-                .FirstOrDefault(t => t.UserId == userId && t.Action == request.CurrentStage);
-            if (existingNormalTransaction != null)
-                return Conflict("You've already processed this stage");
-            var transaction = new MaintenanceTransaction
+            else
             {
-                MaintenanceRequestId = request.MaintenanceId,
-                UserId = userId,
-                Action = request.CurrentStage,
-                Comments = $"Rejected: {rejectionReason}",
-                Timestamp = DateTime.UtcNow,
-                IsCompleted = true
-            };
-            _context.MaintenanceTransactions.Add(transaction);
-            await _context.SaveChangesAsync();
-            await _context.Entry(request).Collection(r => r.Transactions).LoadAsync();
-            var requiredAfter = request.CurrentRoute.UserRoles
-                .Where(ur => ur.Role.Equals(request.CurrentStage, StringComparison.OrdinalIgnoreCase))
-                .Select(ur => ur.UserId).Distinct().ToList();
-            var completedAfter = request.Transactions
-                .Where(t => t.Action == request.CurrentStage && t.IsCompleted)
-                .Select(t => t.UserId).Distinct().ToList();
-            if (completedAfter.Count >= requiredAfter.Count)
+                await HandleNormalUserRejection(request, userId, rejectionReason);
+            }
+
+            var nextStage = GetNextStage(request.CurrentStage);
+
+            if (nextStage == "Complete")
             {
-                var nextStage = GetNextStage(request.CurrentStage);
-                if (nextStage == "Complete")
-                {
-                    request.Status = MaintenanceRequestStatus.Rejected;
-                    request.AdminComments = $"Rejected: {rejectionReason}";
-                    request.CurrentStage = nextStage;
-                    await _context.SaveChangesAsync();
-                    var user = await _userManager.FindByIdAsync(userId);
-                    if (user != null && !string.IsNullOrEmpty(user.Email))
-                    {
-                        var emailMessage = new EmailMessage
-                        {   firstName = user.UserName,
-                            ToAddresses = new List<string> { "ofosupapa@gmail.com" },
-                            Subject = "Maintenance Request Rejected",
-                            Body = $"Your maintenance request has been rejected. Reason: {rejectionReason}"
-                        };
-                        await SendEmailAsync(emailMessage);
-                    }
-                    return Ok(new
-                    {
-                        Message = "Request rejected.",
-                        RequestId = request.MaintenanceId
-                    });
-                }
+                request.Status = MaintenanceRequestStatus.Rejected;
+                request.AdminComments = $"";
                 request.CurrentStage = nextStage;
                 await _context.SaveChangesAsync();
-            }
-            var stageComments = await _context.MaintenanceTransactions
-                .Where(t => t.MaintenanceRequestId == request.MaintenanceId && !string.IsNullOrEmpty(t.Comments))
-                .GroupBy(t => t.Action)
-                .Select(g => new
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user != null && !string.IsNullOrEmpty(user.Email))
                 {
-                    Stage = g.Key,
-                    Comments = g.Select(t => new
-                    {
-                        UserId = t.UserId,
-                        Comment = t.Comments,
-                        Timestamp = t.Timestamp
-                    }).ToList()
-                }).ToListAsync();
+                    await SendRejectionEmailAndNotification(user, request.MaintenanceId, rejectionReason);
+                }
+
+                return Ok(new
+                {
+                    Message = "Request rejected.",
+                    RequestId = request.MaintenanceId
+                });
+            }
+
+            request.CurrentStage = nextStage;
+            await _context.SaveChangesAsync();
+
+            var stageComments = await GetStageComments(request.MaintenanceId);
+
             return Ok(new
             {
                 Message = "Request rejected.",
@@ -995,6 +972,111 @@ namespace PersonaXFleet.Controllers
                 StageComments = stageComments
             });
         }
+
+        private async Task HandleRequestorInCurrentStage(MaintenanceRequest request, string userId)
+        {
+            var existingTransaction = request.Transactions
+                .FirstOrDefault(t => t.UserId == userId && t.Action == request.CurrentStage);
+
+            if (existingTransaction == null)
+            {
+                var skipTransaction = new MaintenanceTransaction
+                {
+                    MaintenanceRequestId = request.MaintenanceId,
+                    UserId = userId,
+                    Action = request.CurrentStage,
+                    Comments = "",
+                    Timestamp = DateTime.UtcNow,
+                    IsCompleted = true
+                };
+
+                _context.MaintenanceTransactions.Add(skipTransaction);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task HandleNormalUserRejection(MaintenanceRequest request, string userId, string rejectionReason)
+        {
+            var userRole = request.CurrentRoute.UserRoles
+                .FirstOrDefault(ur => ur.UserId == userId && ur.Role.Equals(request.CurrentStage, StringComparison.OrdinalIgnoreCase));
+
+            if (userRole == null)
+                throw new Exception("You don't have permission for this action");
+
+            var existingTransaction = request.Transactions
+                .FirstOrDefault(t => t.UserId == userId && t.Action == request.CurrentStage);
+
+            if (existingTransaction != null)
+                throw new Exception("You've already processed this stage");
+
+            var transaction = new MaintenanceTransaction
+            {
+                MaintenanceRequestId = request.MaintenanceId,
+                UserId = userId,
+                Action = request.CurrentStage,
+                Comments = $"Rejected: {rejectionReason}",
+                Timestamp = DateTime.UtcNow,
+                IsCompleted = true
+            };
+
+            _context.MaintenanceTransactions.Add(transaction);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SendRejectionEmailAndNotification(ApplicationUser user, string requestId, string rejectionReason)
+        {
+            var emailMessage = new EmailMessage
+            {
+                firstName = user.UserName,
+                ToAddresses = new List<string> { "ofosupapa@gmail.com" },
+                Subject = "Maintenance Request Rejected",
+                Body = $"Your maintenance request has been rejected. Reason: {rejectionReason}"
+            };
+
+            await SendEmailAsync(emailMessage);
+
+            await _notificationService.CreateNotificationAsync(
+                user.Id,
+                "Maintenance Request Rejected",
+                $"Your maintenance request has been rejected. Reason: {rejectionReason}",
+                NotificationType.System,
+                requestId,
+                null
+            );
+
+            await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
+        }
+
+        private async Task<List<StageComment>> GetStageComments(string maintenanceId)
+        {
+            return await _context.MaintenanceTransactions
+                .Where(t => t.MaintenanceRequestId == maintenanceId && !string.IsNullOrEmpty(t.Comments))
+                .GroupBy(t => t.Action)
+                .Select(g => new StageComment
+                {
+                    Stage = g.Key,
+                    Comments = g.Select(t => new CommentDetail
+                    {
+                        UserId = t.UserId,
+                        Comment = t.Comments,
+                        Timestamp = t.Timestamp
+                    }).ToList()
+                }).ToListAsync();
+        }
+
+        public class StageComment
+        {
+            public string Stage { get; set; }
+            public List<CommentDetail> Comments { get; set; }
+        }
+
+        public class CommentDetail
+        {
+            public string UserId { get; set; }
+            public string Comment { get; set; }
+            public DateTime Timestamp { get; set; }
+        }
+
 
         [HttpPost("{id}/invalidate")]
         public async Task<IActionResult> InvalidateCompletedRequest(string id, [FromQuery] string userId, [FromBody] string comment)
@@ -1114,7 +1196,7 @@ namespace PersonaXFleet.Controllers
                 .Include(r => r.Vehicle)
                 .Include(r => r.RequestedByUser)
                 .Include(r => r.CurrentRoute)
-                .Where(r => r.RequestedByUserId == userId && r.Status != MaintenanceRequestStatus.Approved)
+                .Where(r => r.RequestedByUserId == userId )
                 .OrderByDescending(r => r.RequestDate)
                 .Select(r => new MaintenanceRequestDto
                 {
@@ -1266,6 +1348,16 @@ namespace PersonaXFleet.Controllers
                     Body = $"A schedule request has been assigned to you make an update for when its possible for the vehicle to be returned ."
                 };
                 await SendEmailAsync(emailMessage);
+
+                await _notificationService.CreateNotificationAsync(
+                    user.Id,
+                    "Maintenance Scheduling Request ",
+                    $"You have a new schedule request " ,
+                    NotificationType.System,
+                    request.MaintenanceId,
+                    null
+                );
+                await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
             }
             return Ok(new { Message = "Maintenance request scheduled successfully", ScheduleId = schedule.Id });
         }
@@ -1291,6 +1383,16 @@ namespace PersonaXFleet.Controllers
                     Body = $"The maintenance schedule has been updated by {user.UserName}."
                 };
                 await SendEmailAsync(emailMessage);
+
+                await _notificationService.CreateNotificationAsync(
+                        user.Id,
+                        "Maintenance Scheduling Request ",
+                        $"Your maintenance schedule update has been made ",
+                        NotificationType.System,
+                        schedule.Id,
+                        null
+                    );
+                await _hubContext.Clients.Group(user.Id).SendAsync("NewNotification");
             }
             return Ok(new { Message = "Maintenance schedule updated successfully", ScheduleId = schedule.Id });
         }
@@ -1407,6 +1509,16 @@ namespace PersonaXFleet.Controllers
                     Body = $"A progress update has been submitted for the maintenance request."
                 };
                 await SendEmailAsync(emailMessage);
+
+                await _notificationService.CreateNotificationAsync(
+                        schedule.AssignedMechanicId,
+                        "Maintenance Scheduling Request ",
+                        $"Your maintenance schedule update has been made ",
+                        NotificationType.System,
+                        schedule.Id,
+                        null
+                    );
+                await _hubContext.Clients.Group(schedule.AssignedMechanicId).SendAsync("NewNotification");
             }
             return Ok(new { Message = "Progress update submitted", UpdateId = update.Id });
         }

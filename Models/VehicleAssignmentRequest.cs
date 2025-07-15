@@ -10,6 +10,7 @@ public class VehicleAssignmentRequest
     public Vehicle Vehicle { get; set; } 
     public string RequestReason { get; set; }
     public DateTime RequestDate { get; set; }
+
     public string CurrentStage { get; set; } = "Comment";
     public VehicleRequestStatus Status { get; set; } = VehicleRequestStatus.Pending;
     public string CurrentRouteId { get; set; }

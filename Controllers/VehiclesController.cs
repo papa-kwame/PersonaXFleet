@@ -64,6 +64,13 @@ namespace PersonaXFleet.Controllers
             }
         }
 
+        [HttpGet("due-dates")]
+        public async Task<IActionResult> GetVehiclesWithDueDates([FromQuery] int days = 30)
+        {
+            var vehicles = await _vehicleService.GetVehiclesWithDueDatesAsync(days);
+            return Ok(vehicles);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutVehicle(string id, VehicleDto vehicleDto)
         {
