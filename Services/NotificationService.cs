@@ -14,11 +14,13 @@ namespace PersonaXFleet.Services
     {
         private readonly AuthDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
-        public NotificationService(AuthDbContext context, UserManager<ApplicationUser> userManager)
+        public NotificationService(AuthDbContext context, UserManager<ApplicationUser> userManager, IBackgroundTaskQueue taskQueue  )
         {
             _context = context;
             _userManager = userManager;
+            _taskQueue = taskQueue;
         }
 
         public async Task CreateNotificationAsync(string userId, string title, string message, NotificationType type, string relatedEntityId, string actionLink = null)

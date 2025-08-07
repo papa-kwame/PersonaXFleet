@@ -9,6 +9,8 @@
         public List<string> Roles { get; set; }
         public bool IsLocked { get; set; }
 
+        public bool IsActive { get; set; }
+        public string FullName { get; set; }
         public string Department { get; set; }
     }
 

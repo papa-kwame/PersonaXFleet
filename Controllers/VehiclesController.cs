@@ -20,12 +20,14 @@ namespace PersonaXFleet.Controllers
         private readonly IVehicleService _vehicleService;
         private readonly AuthDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserActivityService _activityService;
         public VehiclesController(IVehicleService vehicleService, AuthDbContext context,
-             UserManager<ApplicationUser> userManager)
+             UserManager<ApplicationUser> userManager, IUserActivityService activityService)
         {
             _context = context; 
             _userManager = userManager; 
             _vehicleService = vehicleService;
+            _activityService = activityService;
         }
 
         [HttpGet]
@@ -51,11 +53,21 @@ namespace PersonaXFleet.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<VehicleDto>> PostVehicle(VehicleDto vehicleDto)
+        public async Task<ActionResult<VehicleDto>> PostVehicle(VehicleDto vehicleDto, [FromQuery] string userId)
         {
             try
             {
                 var createdVehicle = await _vehicleService.CreateVehicleAsync(vehicleDto);
+                
+                // Log activity
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await _activityService.LogActivityAsync(userId, "Create", "Vehicles", 
+                        $"Created vehicle {createdVehicle.LicensePlate}", 
+                        "Vehicle", createdVehicle.Id, 
+                        new { make = createdVehicle.Make, model = createdVehicle.Model, licensePlate = createdVehicle.LicensePlate });
+                }
+                
                 return CreatedAtAction(nameof(GetVehicle), new { id = createdVehicle.Id }, createdVehicle);
             }
             catch (Exception ex)
@@ -71,8 +83,15 @@ namespace PersonaXFleet.Controllers
             return Ok(vehicles);
         }
 
+        [HttpGet("document-expiry")]
+        public async Task<IActionResult> GetDocumentExpiryDetails([FromQuery] int days = 30)
+        {
+            var expiryDetails = await _vehicleService.GetDocumentExpiryDetailsAsync(days);
+            return Ok(expiryDetails);
+        }
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutVehicle(string id, VehicleDto vehicleDto)
+        public async Task<IActionResult> PutVehicle(string id, VehicleDto vehicleDto, [FromQuery] string userId)
         {
             if (id != vehicleDto.Id)
             {
@@ -82,6 +101,16 @@ namespace PersonaXFleet.Controllers
             try
             {
                 await _vehicleService.UpdateVehicleAsync(id, vehicleDto);
+                
+                // Log activity
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await _activityService.LogActivityAsync(userId, "Update", "Vehicles", 
+                        $"Updated vehicle {vehicleDto.LicensePlate}", 
+                        "Vehicle", id, 
+                        new { make = vehicleDto.Make, model = vehicleDto.Model, licensePlate = vehicleDto.LicensePlate });
+                }
+                
                 return NoContent();
             }
             catch (KeyNotFoundException)
@@ -95,11 +124,21 @@ namespace PersonaXFleet.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVehicle(string id)
+        public async Task<IActionResult> DeleteVehicle(string id, [FromQuery] string userId)
         {
             try
             {
                 await _vehicleService.DeleteVehicleAsync(id);
+                
+                // Log activity
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await _activityService.LogActivityAsync(userId, "Delete", "Vehicles", 
+                        $"Deleted vehicle", 
+                        "Vehicle", id, 
+                        new { vehicleId = id });
+                }
+                
                 return NoContent();
             }
             catch (KeyNotFoundException)

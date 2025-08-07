@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PersonaXFleet.Data;
 using PersonaXFleet.DTOs;
 using PersonaXFleet.Models;
+using PersonaXFleet.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,10 +15,12 @@ namespace PersonaXFleet.Controllers
     public class FuelLogsController : ControllerBase
     {
         private readonly AuthDbContext _context;
+        private readonly IUserActivityService _activityService;
 
-        public FuelLogsController(AuthDbContext context)
+        public FuelLogsController(AuthDbContext context, IUserActivityService activityService)
         {
             _context = context;
+            _activityService = activityService;
         }
 
         [HttpGet]
@@ -86,6 +89,12 @@ namespace PersonaXFleet.Controllers
             _context.FuelLogs.Add(fuelLog);
             await _context.SaveChangesAsync();
 
+            // Log activity
+            await _activityService.LogActivityAsync(userId, "Create", "Fuel", 
+                $"Created fuel log for {assignedVehicle.LicensePlate}", 
+                "FuelLog", fuelLog.Id, 
+                new { fuelAmount = fuelLogDto.FuelAmount, cost = fuelLogDto.Cost, fuelStation = fuelLogDto.FuelStation });
+
             return CreatedAtAction("GetFuelLog", new { id = fuelLog.Id }, fuelLog);
         }
 
@@ -118,7 +127,7 @@ namespace PersonaXFleet.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFuelLog(string id, FuelLogDto fuelLogDto)
+        public async Task<IActionResult> PutFuelLog(string id, FuelLogDto fuelLogDto, [FromQuery] string userId)
         {
             var fuelLog = await _context.FuelLogs.FindAsync(id);
             if (fuelLog == null)
@@ -131,6 +140,15 @@ namespace PersonaXFleet.Controllers
             fuelLog.FuelStation = fuelLogDto.FuelStation;
 
             await _context.SaveChangesAsync();
+
+            // Log activity
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await _activityService.LogActivityAsync(userId, "Update", "Fuel", 
+                    $"Updated fuel log", 
+                    "FuelLog", id, 
+                    new { fuelAmount = fuelLogDto.FuelAmount, cost = fuelLogDto.Cost, fuelStation = fuelLogDto.FuelStation });
+            }
 
             return NoContent();
         }
@@ -172,7 +190,7 @@ namespace PersonaXFleet.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFuelLog(string id)
+        public async Task<IActionResult> DeleteFuelLog(string id, [FromQuery] string userId)
         {
             var fuelLog = await _context.FuelLogs.FindAsync(id);
             if (fuelLog == null)
@@ -182,6 +200,15 @@ namespace PersonaXFleet.Controllers
 
             _context.FuelLogs.Remove(fuelLog);
             await _context.SaveChangesAsync();
+
+            // Log activity
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await _activityService.LogActivityAsync(userId, "Delete", "Fuel", 
+                    $"Deleted fuel log", 
+                    "FuelLog", id, 
+                    new { vehicleId = fuelLog.VehicleId });
+            }
 
             return NoContent();
         }

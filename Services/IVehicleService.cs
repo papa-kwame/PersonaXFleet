@@ -10,5 +10,6 @@ namespace PersonaXFleet.Services
         Task UpdateVehicleAsync(string id, VehicleDto vehicleDto);
         Task DeleteVehicleAsync(string id);
         Task<IEnumerable<VehicleDto>> GetVehiclesWithDueDatesAsync(int daysThreshold);
+        Task<IEnumerable<DocumentExpiryDto>> GetDocumentExpiryDetailsAsync(int daysThreshold);
     }
 }

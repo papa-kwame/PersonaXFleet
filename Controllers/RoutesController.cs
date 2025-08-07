@@ -22,6 +22,7 @@ namespace PersonaXFleet.Controllers
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IEmailService _emailService;
         private readonly IWebHostEnvironment _env;
+        private readonly IUserActivityService _activityService;
         private readonly string[] _validDepartments = {
     "Default",
     "Audit",
@@ -38,9 +39,9 @@ namespace PersonaXFleet.Controllers
     "Systems Integration"
 };
 
-        private readonly string[] _requiredRolesInOrder = { "Comment", "Review", "Commit", "Approve" };
+        private readonly string[] _requiredRolesInOrder = { "Comment", "Review", "Approve" , "Commit"};
 
-        public RoutesController(AuthDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment env, INotificationService notificationService, IHubContext<NotificationHub> hubContext, IEmailService emailService)
+        public RoutesController(AuthDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment env, INotificationService notificationService, IHubContext<NotificationHub> hubContext, IEmailService emailService, IUserActivityService activityService)
         {
             _context = context;
             _userManager = userManager;
@@ -48,6 +49,7 @@ namespace PersonaXFleet.Controllers
             _hubContext = hubContext;
             _emailService = emailService;
             _env = env;
+            _activityService = activityService;
         }
 
         private string LoadTemplate(string relativePath, Dictionary<string, string> placeholders)
@@ -139,7 +141,7 @@ namespace PersonaXFleet.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<RouteDto>> CreateRoute(CreateRouteDto dto)
+        public async Task<ActionResult<RouteDto>> CreateRoute(CreateRouteDto dto, [FromQuery] string userId)
         {
             if (!_validDepartments.Contains(dto.Department))
                 return BadRequest("Invalid department");
@@ -180,6 +182,15 @@ namespace PersonaXFleet.Controllers
             _context.Routes.Add(route);
             await _context.SaveChangesAsync();
 
+            // Log activity
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await _activityService.LogActivityAsync(userId, "Create", "Routes", 
+                    $"Created route for {dto.Department} department", 
+                    "Route", route.Id, 
+                    new { department = dto.Department, userCount = dto.Users.Count });
+            }
+
             foreach (var userRole in route.UserRoles)
             {
                 var user = await _userManager.FindByIdAsync(userRole.UserId);
@@ -211,7 +222,7 @@ namespace PersonaXFleet.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRoute(string id, CreateRouteDto dto)
+        public async Task<IActionResult> UpdateRoute(string id, CreateRouteDto dto, [FromQuery] string userId)
         {
             var route = await _context.Routes
                 .Include(r => r.UserRoles)
@@ -274,17 +285,37 @@ namespace PersonaXFleet.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            // Log activity
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await _activityService.LogActivityAsync(userId, "Update", "Routes", 
+                    $"Updated route for {dto.Department} department", 
+                    "Route", id, 
+                    new { department = dto.Department, userCount = dto.Users.Count });
+            }
+
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRoute(string id)
+        public async Task<IActionResult> DeleteRoute(string id, [FromQuery] string userId)
         {
             var route = await _context.Routes.FindAsync(id);
             if (route == null) return NotFound();
 
             _context.Routes.Remove(route);
             await _context.SaveChangesAsync();
+
+            // Log activity
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await _activityService.LogActivityAsync(userId, "Delete", "Routes", 
+                    $"Deleted route", 
+                    "Route", id, 
+                    new { routeName = route.Name, department = route.Department });
+            }
+
             return NoContent();
         }
 

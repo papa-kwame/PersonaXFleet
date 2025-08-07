@@ -1,6 +1,22 @@
 [
   {
     "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "PingActivity",
+    "RelativePath": "api/Auth/activity/ping",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "FleetIdentityServer.Controllers.PingActivityRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
     "Method": "ChangePasswordOnFirstLogin",
     "RelativePath": "api/Auth/change-password-on-first-login",
     "HttpMethod": "POST",
@@ -42,6 +58,22 @@
       {
         "Name": "model",
         "Type": "PersonaXFleet.Models.LoginModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "Logout",
+    "RelativePath": "api/Auth/logout",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "FleetIdentityServer.Controllers.LogoutRequest",
         "IsRequired": true
       }
     ],
@@ -164,8 +196,45 @@
   },
   {
     "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "UpdateUserActivity",
+    "RelativePath": "api/Auth/users/{userId}/activity",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "model",
+        "Type": "PersonaXFleet.DTOs.UpdateUserActivityDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
     "Method": "ToggleUserLock",
     "RelativePath": "api/Auth/users/{userId}/lock",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "ReactivateUser",
+    "RelativePath": "api/Auth/users/{userId}/reactivate",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -197,6 +266,16 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FleetIdentityServer.Controllers.Auth",
+    "Method": "GetUserActivityStatus",
+    "RelativePath": "api/Auth/users/activity-status",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -272,6 +351,11 @@
         "Name": "fuelLogDto",
         "Type": "PersonaXFleet.DTOs.FuelLogDto",
         "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -288,6 +372,11 @@
         "Name": "id",
         "Type": "System.String",
         "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -1124,6 +1213,11 @@
         "Name": "dto",
         "Type": "PersonaXFleet.DTOs.CreateRouteDto",
         "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -1181,6 +1275,11 @@
         "Name": "dto",
         "Type": "PersonaXFleet.DTOs.CreateRouteDto",
         "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -1197,6 +1296,11 @@
         "Name": "id",
         "Type": "System.String",
         "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -1272,6 +1376,227 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "LogActivity",
+    "RelativePath": "api/UserActivity/log",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PersonaXFleet.Controllers.LogActivityRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetModuleActivities",
+    "RelativePath": "api/UserActivity/module/{module}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "module",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "fromDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetMostActiveUsers",
+    "RelativePath": "api/UserActivity/most-active-users",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "limit",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetMyActivities",
+    "RelativePath": "api/UserActivity/my-activities",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "fromDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "limit",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetMyActivitySummary",
+    "RelativePath": "api/UserActivity/my-summary",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetPopularPages",
+    "RelativePath": "api/UserActivity/popular-pages",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "limit",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetRecentActivities",
+    "RelativePath": "api/UserActivity/recent",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "limit",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetActivityStats",
+    "RelativePath": "api/UserActivity/stats",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fromDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetActivityTrends",
+    "RelativePath": "api/UserActivity/trends",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "days",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetUserActivitySummary",
+    "RelativePath": "api/UserActivity/user-summary/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.UserActivityController",
+    "Method": "GetUserActivities",
+    "RelativePath": "api/UserActivity/user/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "fromDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "limit",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.VehicleAssignmentController",
@@ -1609,6 +1934,11 @@
         "Name": "vehicleDto",
         "Type": "PersonaXFleet.DTOs.VehicleDto",
         "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -1666,6 +1996,11 @@
         "Name": "vehicleDto",
         "Type": "PersonaXFleet.DTOs.VehicleDto",
         "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -1682,6 +2017,11 @@
         "Name": "id",
         "Type": "System.String",
         "IsRequired": true
+      },
+      {
+        "Name": "userId",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -1721,6 +2061,22 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "PersonaXFleet.Controllers.VehiclesController",
+    "Method": "GetDocumentExpiryDetails",
+    "RelativePath": "api/Vehicles/document-expiry",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "days",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "PersonaXFleet.Controllers.VehiclesController",

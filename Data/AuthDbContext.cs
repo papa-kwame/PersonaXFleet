@@ -40,6 +40,7 @@ namespace PersonaXFleet.Data
 
         public DbSet<ActivityLog> ActivityLogs { get; set; }
 
+        public DbSet<UserActivity> UserActivities { get; set; }
         public DbSet<MaintenanceProgressUpdate> MaintenanceProgressUpdates { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

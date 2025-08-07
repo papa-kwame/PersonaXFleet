@@ -1,0 +1,124 @@
+2025-08-03 15:26:51.027 +00:00 [INF] User profile is available. Using 'C:\Users\pc\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-08-03 15:26:52.686 +00:00 [WRN] The foreign key property 'FuelLog.VehicleId1' was created in shadow state because a conflicting property with the simple name 'VehicleId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-08-03 15:26:52.746 +00:00 [WRN] No store type was specified for the decimal property 'Cost' on entity type 'FuelLog'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:52.747 +00:00 [WRN] No store type was specified for the decimal property 'FuelAmount' on entity type 'FuelLog'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:52.747 +00:00 [WRN] No store type was specified for the decimal property 'LaborHours' on entity type 'Invoice'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:52.747 +00:00 [WRN] No store type was specified for the decimal property 'TotalCost' on entity type 'Invoice'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:52.747 +00:00 [WRN] No store type was specified for the decimal property 'ActualCost' on entity type 'MaintenanceHistory'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:52.747 +00:00 [WRN] No store type was specified for the decimal property 'EstimatedCost' on entity type 'MaintenanceHistory'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:52.747 +00:00 [WRN] No store type was specified for the decimal property 'EstimatedCost' on entity type 'MaintenanceRequest'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:52.747 +00:00 [WRN] No store type was specified for the decimal property 'UnitPrice' on entity type 'PartUsed'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:52.747 +00:00 [WRN] No store type was specified for the decimal property 'EngineSize' on entity type 'Vehicle'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:52.747 +00:00 [WRN] No store type was specified for the decimal property 'PurchasePrice' on entity type 'Vehicle'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2025-08-03 15:26:54.360 +00:00 [INF] Executed DbCommand (119ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2025-08-03 15:26:54.480 +00:00 [INF] Executed DbCommand (2ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2025-08-03 15:26:54.482 +00:00 [INF] Executed DbCommand (1ms) [Parameters=[@__normalizedName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+FROM [AspNetRoles] AS [a]
+WHERE [a].[NormalizedName] = @__normalizedName_0
+2025-08-03 15:26:54.524 +00:00 [INF] Background queue processing started.
+2025-08-03 15:26:54.674 +00:00 [INF] Executed DbCommand (11ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 15:26:54.844 +00:00 [INF] Executed DbCommand (10ms) [Parameters=[@__normalizedUserName_0='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[NormalizedUserName] = @__normalizedUserName_0
+2025-08-03 15:26:55.226 +00:00 [INF] Executed DbCommand (36ms) [Parameters=[@p21='?' (Size = 450), @p0='?' (DbType = Int32), @p1='?' (Size = 4000), @p22='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (Size = 256), @p4='?' (DbType = Boolean), @p5='?' (Size = 4000), @p6='?' (DbType = Boolean), @p7='?' (DbType = DateTime2), @p8='?' (DbType = DateTime2), @p9='?' (DbType = Boolean), @p10='?' (DbType = DateTimeOffset), @p11='?' (DbType = Boolean), @p12='?' (Size = 256), @p13='?' (Size = 256), @p14='?' (Size = 4000), @p15='?' (Size = 4000), @p16='?' (DbType = Boolean), @p17='?' (Size = 4000), @p18='?' (Size = 4000), @p19='?' (DbType = Boolean), @p20='?' (Size = 256)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [AspNetUsers] SET [AccessFailedCount] = @p0, [ConcurrencyStamp] = @p1, [Department] = @p2, [Email] = @p3, [EmailConfirmed] = @p4, [FullName] = @p5, [IsActive] = @p6, [LastActivityDate] = @p7, [LastLoginDate] = @p8, [LockoutEnabled] = @p9, [LockoutEnd] = @p10, [MustChangePassword] = @p11, [NormalizedEmail] = @p12, [NormalizedUserName] = @p13, [PasswordHash] = @p14, [PhoneNumber] = @p15, [PhoneNumberConfirmed] = @p16, [ProfilePicture] = @p17, [SecurityStamp] = @p18, [TwoFactorEnabled] = @p19, [UserName] = @p20
+OUTPUT 1
+WHERE [Id] = @p21 AND [ConcurrencyStamp] = @p22;
+2025-08-03 15:26:55.297 +00:00 [INF] Now listening on: https://localhost:7092
+2025-08-03 15:26:55.298 +00:00 [INF] Now listening on: http://localhost:5062
+2025-08-03 15:26:55.621 +00:00 [INF] Executed DbCommand (21ms) [Parameters=[@p0='?' (Size = 4000), @p1='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (DbType = Int32), @p4='?' (Size = 4000), @p5='?' (Size = 4000), @p6='?' (Size = 4000), @p7='?' (Size = 4000), @p8='?' (DbType = Boolean), @p9='?' (Size = 4000), @p10='?' (Size = 4000), @p11='?' (Size = 4000), @p12='?' (Size = 4000), @p13='?' (Size = 4000), @p14='?' (DbType = DateTime2), @p15='?' (Size = 4000), @p16='?' (Size = 450)], CommandType='"Text"', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [UserActivities] ([ActivityType], [Description], [Details], [DurationMs], [EntityId], [EntityType], [ErrorMessage], [IpAddress], [IsSuccessful], [Module], [NewValues], [OldValues], [PageUrl], [SessionId], [Timestamp], [UserAgent], [UserId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16);
+2025-08-03 15:26:55.679 +00:00 [INF] Set user Papa-Kwame as inactive due to no recent activity
+2025-08-03 15:26:55.680 +00:00 [INF] Set 1 users as inactive due to inactivity
+2025-08-03 15:26:55.762 +00:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-08-03 15:26:55.763 +00:00 [INF] Hosting environment: Development
+2025-08-03 15:26:55.763 +00:00 [INF] Content root path: C:\Users\pc\PersonaX\PersonaXFleet
+2025-08-03 15:26:56.888 +00:00 [INF] Request starting HTTP/2 GET https://localhost:7092/swagger/index.html - null null
+2025-08-03 15:26:57.388 +00:00 [INF] Request finished HTTP/2 GET https://localhost:7092/swagger/index.html - 200 null text/html;charset=utf-8 520.4408ms
+2025-08-03 15:26:57.410 +00:00 [INF] Request starting HTTP/2 GET https://localhost:7092/_vs/browserLink - null null
+2025-08-03 15:26:57.411 +00:00 [INF] Request starting HTTP/2 GET https://localhost:7092/_framework/aspnetcore-browser-refresh.js - null null
+2025-08-03 15:26:57.427 +00:00 [INF] Request finished HTTP/2 GET https://localhost:7092/_framework/aspnetcore-browser-refresh.js - 200 16511 application/javascript; charset=utf-8 16.7022ms
+2025-08-03 15:26:57.582 +00:00 [INF] Request finished HTTP/2 GET https://localhost:7092/_vs/browserLink - 200 null text/javascript; charset=UTF-8 171.8302ms
+2025-08-03 15:26:57.801 +00:00 [INF] Request starting HTTP/2 GET https://localhost:7092/swagger/v1/swagger.json - null null
+2025-08-03 15:26:57.902 +00:00 [INF] Request finished HTTP/2 GET https://localhost:7092/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 101.5892ms
+2025-08-03 15:31:55.776 +00:00 [INF] Executed DbCommand (43ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 15:36:55.830 +00:00 [INF] Executed DbCommand (17ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 15:41:55.911 +00:00 [INF] Executed DbCommand (56ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 15:46:55.979 +00:00 [INF] Executed DbCommand (45ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 15:51:56.071 +00:00 [INF] Executed DbCommand (29ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 15:56:56.123 +00:00 [INF] Executed DbCommand (36ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:01:56.232 +00:00 [INF] Executed DbCommand (39ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:06:56.289 +00:00 [INF] Executed DbCommand (38ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:11:56.387 +00:00 [INF] Executed DbCommand (19ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:16:56.480 +00:00 [INF] Executed DbCommand (36ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:21:56.556 +00:00 [INF] Executed DbCommand (31ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:26:56.588 +00:00 [INF] Executed DbCommand (30ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:31:56.639 +00:00 [INF] Executed DbCommand (34ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:36:56.710 +00:00 [INF] Executed DbCommand (30ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:41:56.751 +00:00 [INF] Executed DbCommand (32ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0
+2025-08-03 16:46:56.784 +00:00 [INF] Executed DbCommand (7ms) [Parameters=[@__cutoffDate_0='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='30']
+SELECT [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Department], [a].[Email], [a].[EmailConfirmed], [a].[FullName], [a].[IsActive], [a].[LastActivityDate], [a].[LastLoginDate], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[MustChangePassword], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[ProfilePicture], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+FROM [AspNetUsers] AS [a]
+WHERE [a].[IsActive] = CAST(1 AS bit) AND [a].[LastActivityDate] < @__cutoffDate_0

@@ -27,10 +27,11 @@ namespace PersonaXFleet.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly INotificationService _notificationService;
         private readonly IHubContext<NotificationHub> _hubContext;
-        private readonly ILogger<MaintenanceRequestController> _logger; 
+        private readonly ILogger<MaintenanceRequestController> _logger;
+        private readonly IUserActivityService _activityService; 
 
 
-        public MaintenanceRequestController(AuthDbContext context, UserManager<ApplicationUser> userManager, IEmailService emailService, IWebHostEnvironment env, INotificationService notificationService, IHubContext<NotificationHub> hubContext, ILogger<MaintenanceRequestController> logger)
+        public MaintenanceRequestController(AuthDbContext context, UserManager<ApplicationUser> userManager, IEmailService emailService, IWebHostEnvironment env, INotificationService notificationService, IHubContext<NotificationHub> hubContext, ILogger<MaintenanceRequestController> logger, IUserActivityService activityService)
         {
             _context = context;
             _userManager = userManager;
@@ -39,7 +40,7 @@ namespace PersonaXFleet.Controllers
             _notificationService = notificationService;
             _hubContext = hubContext;
             _logger = logger;
-    
+            _activityService = activityService;
         }
 
         private string LoadTemplate(string relativePath, Dictionary<string, string> placeholders)
@@ -273,6 +274,13 @@ namespace PersonaXFleet.Controllers
             };
             _context.MaintenanceRequests.Add(request);
             await _context.SaveChangesAsync();
+            
+            // Log activity
+            await _activityService.LogActivityAsync(userId, "Create", "Maintenance", 
+                $"Created maintenance request for {vehicle.LicensePlate}", 
+                "MaintenanceRequest", request.MaintenanceId, 
+                new { requestType = request.RequestType.ToString(), priority = request.Priority.ToString(), estimatedCost = request.EstimatedCost });
+            
             var creationTransaction = new MaintenanceTransaction
             {
                 MaintenanceRequestId = request.MaintenanceId,
@@ -347,6 +355,12 @@ namespace PersonaXFleet.Controllers
 
             _context.MaintenanceRequests.Add(request);
             await _context.SaveChangesAsync();
+
+            // Log activity
+            await _activityService.LogActivityAsync(userId, "Create", "Maintenance", 
+                $"Created personal maintenance request for {vehicle.LicensePlate}", 
+                "MaintenanceRequest", request.MaintenanceId, 
+                new { requestType = request.RequestType.ToString(), priority = request.Priority.ToString(), isPersonal = true });
 
             var creationTransaction = new MaintenanceTransaction
             {
@@ -576,6 +590,12 @@ namespace PersonaXFleet.Controllers
             _context.MaintenanceTransactions.Add(transaction);
             await _context.SaveChangesAsync();
 
+            // Log activity
+            await _activityService.LogActivityAsync(userId, "ProcessStage", "Maintenance", 
+                $"Processed {request.CurrentStage} stage for maintenance request", 
+                "MaintenanceRequest", request.MaintenanceId, 
+                new { stage = request.CurrentStage, comments = dto.Comments, estimatedCost = dto.EstimatedCost });
+
             await _context.Entry(request).Collection(r => r.Transactions).LoadAsync();
 
             var requiredUsers = request.CurrentRoute.UserRoles
@@ -719,9 +739,9 @@ namespace PersonaXFleet.Controllers
             return currentStage switch
             {
                 "Comment" => "Review",
-                "Review" => "Commit",
-                "Commit" => "Approve",
-                "Approve" => "Complete",
+                "Review" => "Approve",
+                "Approve" => "Commit",
+                "Commit" => "Complete",
                 _ => "Complete"
             };
         }
@@ -1021,6 +1041,12 @@ namespace PersonaXFleet.Controllers
 
             _context.MaintenanceTransactions.Add(transaction);
             await _context.SaveChangesAsync();
+
+            // Log activity
+            await _activityService.LogActivityAsync(userId, "Reject", "Maintenance", 
+                $"Rejected maintenance request", 
+                "MaintenanceRequest", request.MaintenanceId, 
+                new { stage = request.CurrentStage, rejectionReason = rejectionReason });
         }
 
         private async Task SendRejectionEmailAndNotification(ApplicationUser user, string requestId, string rejectionReason)
@@ -1338,6 +1364,12 @@ namespace PersonaXFleet.Controllers
             };
             _context.MaintenanceSchedules.Add(schedule);
             await _context.SaveChangesAsync();
+
+            // Log activity
+            await _activityService.LogActivityAsync(schedule.AssignedMechanicId, "Schedule", "Maintenance", 
+                $"Scheduled maintenance request", 
+                "MaintenanceRequest", request.MaintenanceId, 
+                new { scheduledDate = schedule.ScheduledDate, reason = schedule.Reason, mechanicId = schedule.AssignedMechanicId });
             var user = await _userManager.FindByIdAsync(schedule.AssignedMechanicId);
             if (user != null && !string.IsNullOrEmpty(user.Email))
             {
@@ -1464,6 +1496,13 @@ namespace PersonaXFleet.Controllers
                 }
             }
             await _context.SaveChangesAsync();
+
+            // Log activity
+            await _activityService.LogActivityAsync(userId, "Complete", "Maintenance", 
+                $"Completed maintenance request with invoice", 
+                "MaintenanceRequest", schedule.MaintenanceRequestId, 
+                new { laborHours = data.Invoice.LaborHours, totalCost = data.Invoice.TotalCost, partsCount = data.Invoice.PartsUsed?.Count ?? 0 });
+
             var userObj = await _userManager.FindByIdAsync(userId);
             if (userObj != null && !string.IsNullOrEmpty(userObj.Email))
             {
@@ -1499,6 +1538,12 @@ namespace PersonaXFleet.Controllers
             };
             _context.MaintenanceProgressUpdates.Add(update);
             await _context.SaveChangesAsync();
+
+            // Log activity
+            await _activityService.LogActivityAsync(user, "ProgressUpdate", "Maintenance", 
+                $"Submitted progress update for maintenance request", 
+                "MaintenanceRequest", id, 
+                new { expectedCompletionDate = dto.ExpectedCompletionDate, comment = dto.Comment });
             var userObj = await _userManager.FindByIdAsync(user);
             if (userObj != null && !string.IsNullOrEmpty(userObj.Email))
             {

@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using PersonaXFleet.Data;
 using PersonaXFleet.DTOs;
 using PersonaXFleet.Models;
+using PersonaXFleet.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -24,14 +25,16 @@ namespace FleetIdentityServer.Controllers
         private readonly IConfiguration _config;
         private readonly AuthDbContext _context;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IUserActivityService _activityService;
 
-        public Auth(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config, AuthDbContext context, RoleManager<IdentityRole> roleManager)
+        public Auth(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config, AuthDbContext context, RoleManager<IdentityRole> roleManager, IUserActivityService activityService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _config = config;
             _context = context;
             _roleManager = roleManager;
+            _activityService = activityService;
         }
 
         [HttpPost("register")]
@@ -76,6 +79,18 @@ namespace FleetIdentityServer.Controllers
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded) return Unauthorized();
 
+            // Update login and activity dates
+            user.LastLoginDate = DateTime.UtcNow;
+                            user.LastActivityDate = DateTime.UtcNow;
+                user.IsActive = true; // Set user as active when they log in
+                await _userManager.UpdateAsync(user);
+
+                // Log login activity
+                await _activityService.LogActivityAsync(user.Id, "Login", "Authentication", 
+                    $"User logged in successfully", 
+                    "User", user.Id, 
+                    new { email = user.Email, department = user.Department });
+
             var roles = await _userManager.GetRolesAsync(user);
 
             var routePermissions = await _context.UserRouteRoles
@@ -100,7 +115,8 @@ namespace FleetIdentityServer.Controllers
                     roles,
                     routeRoles = rolesList,
                     userId = user.Id,
-                    mustChangePassword = true
+                    mustChangePassword = true,
+                    isActive = user.IsActive
                 });
             }
 
@@ -110,7 +126,8 @@ namespace FleetIdentityServer.Controllers
                 roles,
                 routeRoles = rolesList,
                 userId = user.Id,
-                mustChangePassword = false
+                mustChangePassword = false,
+                isActive = user.IsActive
             });
         }
 
@@ -191,6 +208,7 @@ namespace FleetIdentityServer.Controllers
                 PhoneNumber = user.PhoneNumber,
                 Roles = roles.ToList(),
                 IsLocked = await _userManager.IsLockedOutAsync(user),
+                IsActive = user.IsActive,
                 Department = user.Department
             };
 
@@ -243,7 +261,9 @@ namespace FleetIdentityServer.Controllers
                     PhoneNumber = user.PhoneNumber,
                     Roles = roles.ToList(),
                     IsLocked = await _userManager.IsLockedOutAsync(user),
-                    Department = user.Department
+                    IsActive = user.IsActive,
+                    Department = user.Department,
+                    FullName = user.FullName
                 });
             }
 
@@ -389,12 +409,134 @@ namespace FleetIdentityServer.Controllers
             var roles = _roleManager.Roles.ToList();
             return Ok(roles);
         }
+
+        [HttpPost("users/{userId}/activity")]
+        public async Task<IActionResult> UpdateUserActivity(string userId, [FromBody] UpdateUserActivityDto model)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound(new { message = "User not found" });
+
+            user.IsActive = model.IsActive;
+            await _userManager.UpdateAsync(user);
+
+            return Ok(new { 
+                message = $"User {(model.IsActive ? "activated" : "deactivated")} successfully",
+                isActive = user.IsActive
+            });
+        }
+
+        [HttpGet("users/activity-status")]
+        public async Task<IActionResult> GetUserActivityStatus()
+        {
+            var users = await _userManager.Users
+                .Select(u => new
+                {
+                    u.Id,
+                    u.UserName,
+                    u.Email,
+                    u.IsActive,
+                    u.LastLoginDate,
+                    DaysSinceLastLogin = u.LastLoginDate.HasValue
+                        ? (int?)(DateTime.UtcNow - u.LastLoginDate.Value).Days
+                        : null
+                })
+                .ToListAsync();
+
+
+            var stats = new
+            {
+                TotalUsers = users.Count,
+                ActiveUsers = users.Count(u => u.IsActive),
+                InactiveUsers = users.Count(u => !u.IsActive),
+                RecentlyActive = users.Count(u => u.DaysSinceLastLogin.HasValue && u.DaysSinceLastLogin <= 7),
+                InactiveOver30Days = users.Count(u => u.DaysSinceLastLogin.HasValue && u.DaysSinceLastLogin > 30)
+            };
+
+            return Ok(new { users, stats });
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] LogoutRequest request)
+        {
+            if (string.IsNullOrEmpty(request.UserId))
+            {
+                return BadRequest("UserId is required");
+            }
+
+            var user = await _userManager.FindByIdAsync(request.UserId);
+            if (user != null)
+            {
+                user.IsActive = false; // Set user as inactive when they log out
+                await _userManager.UpdateAsync(user);
+
+                // Log logout activity
+                await _activityService.LogActivityAsync(request.UserId, "Logout", "Authentication", 
+                    $"User logged out", 
+                    "User", request.UserId, 
+                    new { email = user.Email, department = user.Department });
+            }
+
+            return Ok(new { message = "Logged out successfully" });
+        }
+
+        [HttpPost("users/{userId}/reactivate")]
+        public async Task<IActionResult> ReactivateUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound(new { message = "User not found" });
+
+            user.IsActive = true;
+            user.LastLoginDate = DateTime.UtcNow; 
+            await _userManager.UpdateAsync(user);
+
+            return Ok(new { 
+                message = "User reactivated successfully",
+                isActive = user.IsActive,
+                lastLoginDate = user.LastLoginDate
+            });
+        }
+
+        [HttpPost("activity/ping")]
+        public async Task<IActionResult> PingActivity([FromBody] PingActivityRequest request)
+        {
+            if (string.IsNullOrEmpty(request.UserId))
+            {
+                return BadRequest("UserId is required");
+            }
+
+            var user = await _userManager.FindByIdAsync(request.UserId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            // Update activity timestamp
+            user.LastActivityDate = DateTime.UtcNow;
+            user.IsActive = true;
+            await _userManager.UpdateAsync(user);
+
+            return Ok(new { 
+                message = "Activity updated",
+                lastActivity = user.LastActivityDate,
+                isActive = user.IsActive
+            });
+        }
     }
     public class ChangePasswordDto
     {
         public string Email { get; set; }
         public string CurrentPassword { get; set; }
         public string NewPassword { get; set; }
+    }
+
+    public class LogoutRequest
+    {
+        public string UserId { get; set; }
+    }
+
+    public class PingActivityRequest
+    {
+        public string UserId { get; set; }
     }
 
 }

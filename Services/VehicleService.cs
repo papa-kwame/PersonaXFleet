@@ -179,6 +179,102 @@ public async Task<bool> DeleteVehicleAsync(string id)
             return vehicles.Select(MapToDto);
         }
 
+        public async Task<IEnumerable<DocumentExpiryDto>> GetDocumentExpiryDetailsAsync(int daysThreshold)
+        {
+            var today = DateTime.Today;
+            var maxDate = today.AddDays(daysThreshold);
+
+            var vehicles = await _context.Vehicles
+                .Where(v =>
+                    (v.NextServiceDue.HasValue && v.NextServiceDue.Value.Date <= maxDate) ||
+                    (v.RoadworthyExpiry.HasValue && v.RoadworthyExpiry.Value.Date <= maxDate) ||
+                    (v.RegistrationExpiry.HasValue && v.RegistrationExpiry.Value.Date <= maxDate) ||
+                    (v.InsuranceExpiry.HasValue && v.InsuranceExpiry.Value.Date <= maxDate))
+                .ToListAsync();
+
+            var result = new List<DocumentExpiryDto>();
+
+            foreach (var vehicle in vehicles)
+            {
+                var expiryDto = new DocumentExpiryDto
+                {
+                    VehicleId = vehicle.Id,
+                    Make = vehicle.Make,
+                    Model = vehicle.Model,
+                    LicensePlate = vehicle.LicensePlate,
+                    ExpiringDocuments = new List<ExpiringDocument>()
+                };
+
+                // Check each document type
+                if (vehicle.NextServiceDue.HasValue && vehicle.NextServiceDue.Value.Date <= maxDate)
+                {
+                    var daysUntilExpiry = (vehicle.NextServiceDue.Value.Date - today).Days;
+                    expiryDto.ExpiringDocuments.Add(new ExpiringDocument
+                    {
+                        DocumentType = "Service Due",
+                        ExpiryDate = vehicle.NextServiceDue.Value,
+                        DaysUntilExpiry = daysUntilExpiry,
+                        Status = GetExpiryStatus(daysUntilExpiry)
+                    });
+                }
+
+                if (vehicle.RoadworthyExpiry.HasValue && vehicle.RoadworthyExpiry.Value.Date <= maxDate)
+                {
+                    var daysUntilExpiry = (vehicle.RoadworthyExpiry.Value.Date - today).Days;
+                    expiryDto.ExpiringDocuments.Add(new ExpiringDocument
+                    {
+                        DocumentType = "Roadworthy Certificate",
+                        ExpiryDate = vehicle.RoadworthyExpiry.Value,
+                        DaysUntilExpiry = daysUntilExpiry,
+                        Status = GetExpiryStatus(daysUntilExpiry)
+                    });
+                }
+
+                if (vehicle.RegistrationExpiry.HasValue && vehicle.RegistrationExpiry.Value.Date <= maxDate)
+                {
+                    var daysUntilExpiry = (vehicle.RegistrationExpiry.Value.Date - today).Days;
+                    expiryDto.ExpiringDocuments.Add(new ExpiringDocument
+                    {
+                        DocumentType = "Registration",
+                        ExpiryDate = vehicle.RegistrationExpiry.Value,
+                        DaysUntilExpiry = daysUntilExpiry,
+                        Status = GetExpiryStatus(daysUntilExpiry)
+                    });
+                }
+
+                if (vehicle.InsuranceExpiry.HasValue && vehicle.InsuranceExpiry.Value.Date <= maxDate)
+                {
+                    var daysUntilExpiry = (vehicle.InsuranceExpiry.Value.Date - today).Days;
+                    expiryDto.ExpiringDocuments.Add(new ExpiringDocument
+                    {
+                        DocumentType = "Insurance",
+                        ExpiryDate = vehicle.InsuranceExpiry.Value,
+                        DaysUntilExpiry = daysUntilExpiry,
+                        Status = GetExpiryStatus(daysUntilExpiry)
+                    });
+                }
+
+                if (expiryDto.ExpiringDocuments.Any())
+                {
+                    result.Add(expiryDto);
+                }
+            }
+
+            return result.OrderBy(v => v.ExpiringDocuments.Min(d => d.DaysUntilExpiry));
+        }
+
+        private string GetExpiryStatus(int daysUntilExpiry)
+        {
+            if (daysUntilExpiry < 0)
+                return "Expired";
+            else if (daysUntilExpiry <= 7)
+                return "Critical";
+            else if (daysUntilExpiry <= 30)
+                return "Warning";
+            else
+                return "Expiring Soon";
+        }
+
         Task IVehicleService.DeleteVehicleAsync(string id)
         {
             return DeleteVehicleAsync(id);

@@ -23,6 +23,7 @@ namespace PersonaXFleet.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly INotificationService _notificationService;
         private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly IUserActivityService _activityService;
 
         public VehicleAssignmentController(
             AuthDbContext context,
@@ -30,7 +31,8 @@ namespace PersonaXFleet.Controllers
             IEmailService emailService,
             IWebHostEnvironment env,
             INotificationService notificationService,
-            IHubContext<NotificationHub> hubContext)
+            IHubContext<NotificationHub> hubContext,
+            IUserActivityService activityService)
         {
             _context = context;
             _userManager = userManager;
@@ -38,6 +40,7 @@ namespace PersonaXFleet.Controllers
             _env = env;
             _notificationService = notificationService;
             _hubContext = hubContext;
+            _activityService = activityService;
         }
 
         private string LoadTemplate(string relativePath, Dictionary<string, string> placeholders)
@@ -213,6 +216,12 @@ namespace PersonaXFleet.Controllers
 
             _context.VehicleAssignmentRequests.Add(request);
             await _context.SaveChangesAsync();
+
+            // Log activity
+            await _activityService.LogActivityAsync(dto.UserId, "Create", "VehicleAssignment", 
+                $"Created vehicle assignment request for {vehicle.LicensePlate}", 
+                "VehicleAssignmentRequest", request.Id, 
+                new { vehicleId = dto.VehicleId, requestReason = dto.RequestReason });
 
             var creationTransaction = new VehicleAssignmentTransaction
             {
@@ -473,6 +482,12 @@ namespace PersonaXFleet.Controllers
 
             _context.VehicleAssignmentTransactions.Add(transaction);
             await _context.SaveChangesAsync();
+
+            // Log activity
+            await _activityService.LogActivityAsync(userId, "ProcessStage", "VehicleAssignment", 
+                $"Processed {request.CurrentStage} stage for vehicle assignment request", 
+                "VehicleAssignmentRequest", request.Id, 
+                new { stage = request.CurrentStage, comments = dto.Comments });
 
             var requiredAfter = request.CurrentRoute.UserRoles
                 .Where(ur => ur.Role.Equals(request.CurrentStage, StringComparison.OrdinalIgnoreCase))
@@ -756,6 +771,12 @@ namespace PersonaXFleet.Controllers
 
             await _context.SaveChangesAsync();
 
+            // Log activity
+            await _activityService.LogActivityAsync(dto.UserId, "Assign", "VehicleAssignment", 
+                $"Directly assigned vehicle {vehicle.LicensePlate} to user", 
+                "Vehicle", vehicle.Id, 
+                new { vehicleId = dto.VehicleId, userId = dto.UserId });
+
             var emailMessage = new EmailMessage
             {
                 firstName = user.UserName,
@@ -816,6 +837,12 @@ namespace PersonaXFleet.Controllers
             {
                 await _context.SaveChangesAsync();
 
+                // Log activity
+                await _activityService.LogActivityAsync(vehicle.UserId, "Unassign", "VehicleAssignment", 
+                    $"Unassigned vehicle {vehicle.LicensePlate} from user", 
+                    "Vehicle", vehicle.Id, 
+                    new { vehicleId = vehicleId, userId = vehicle.UserId });
+
                 if (user != null)
                 {
                     var emailMessage = new EmailMessage
@@ -856,12 +883,13 @@ namespace PersonaXFleet.Controllers
             return currentStage switch
             {
                 "Comment" => "Review",
-                "Review" => "Commit",
-                "Commit" => "Approve",
-                "Approve" => "Complete",
+                "Review" => "Approve",
+                "Approve" => "Commit",
+                "Commit" => "Complete",
                 _ => "Complete"
             };
         }
+
 
         [HttpGet("UserRequests/{userId}")]
         public async Task<IActionResult> GetUserRequests(string userId)

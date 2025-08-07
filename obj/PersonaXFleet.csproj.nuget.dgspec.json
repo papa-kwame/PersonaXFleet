@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\PersonaXFleet.csproj": {}
+    "C:\\Users\\pc\\PersonaX\\PersonaXFleet\\PersonaXFleet.csproj": {}
   },
   "projects": {
-    "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\PersonaXFleet.csproj": {
+    "C:\\Users\\pc\\PersonaX\\PersonaXFleet\\PersonaXFleet.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\PersonaXFleet.csproj",
+        "projectUniqueName": "C:\\Users\\pc\\PersonaX\\PersonaXFleet\\PersonaXFleet.csproj",
         "projectName": "PersonaXFleet",
-        "projectPath": "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\PersonaXFleet.csproj",
+        "projectPath": "C:\\Users\\pc\\PersonaX\\PersonaXFleet\\PersonaXFleet.csproj",
         "packagesPath": "C:\\Users\\pc\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\pc\\source\\repos\\papa-kwame\\PersonaXFleet\\obj\\",
+        "outputPath": "C:\\Users\\pc\\PersonaX\\PersonaXFleet\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -61,6 +61,18 @@
               "target": "Package",
               "version": "[14.0.0, )"
             },
+            "Hangfire": {
+              "target": "Package",
+              "version": "[1.8.20, )"
+            },
+            "Hangfire.AspNetCore": {
+              "target": "Package",
+              "version": "[1.8.20, )"
+            },
+            "Hangfire.SqlServer": {
+              "target": "Package",
+              "version": "[1.8.20, )"
+            },
             "MailKit": {
               "target": "Package",
               "version": "[4.12.1, )"
@@ -86,6 +98,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[8.0.15, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[7.1.2, )"
             },
             "RazorLight": {
               "target": "Package",

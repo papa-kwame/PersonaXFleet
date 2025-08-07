@@ -26,8 +26,13 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<IUserActivityService, UserActivityService>();
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+builder.Services.AddHostedService<QueuedHostedService>();
+builder.Services.AddHostedService<UserActivityService>();
+
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
 

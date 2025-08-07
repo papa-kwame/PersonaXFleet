@@ -13,14 +13,16 @@ namespace PersonaXFleet.Services
     {
         private readonly EmailSettings _settings;
         private readonly RazorLightEngine _razorEngine;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
-        public EmailService(IOptions<EmailSettings> settings)
+        public EmailService(IOptions<EmailSettings> settings, IBackgroundTaskQueue taskQueue    )
         {
             _settings = settings.Value;
             _razorEngine = new RazorLightEngineBuilder()
                 .UseEmbeddedResourcesProject(typeof(Program))
                 .UseMemoryCachingProvider()
                 .Build();
+            _taskQueue = taskQueue;
         }
 
         public async Task SendEmailAsync(EmailMessage message)
