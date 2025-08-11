@@ -587,6 +587,9 @@ namespace PersonaXFleet.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<int?>("TotatalCostofRepair")
+                        .HasColumnType("int");
+
                     b.Property<string>("VehicleId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");

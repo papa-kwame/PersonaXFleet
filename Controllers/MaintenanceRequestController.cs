@@ -356,7 +356,6 @@ namespace PersonaXFleet.Controllers
             _context.MaintenanceRequests.Add(request);
             await _context.SaveChangesAsync();
 
-            // Log activity
             await _activityService.LogActivityAsync(userId, "Create", "Maintenance", 
                 $"Created personal maintenance request for {vehicle.LicensePlate}", 
                 "MaintenanceRequest", request.MaintenanceId, 

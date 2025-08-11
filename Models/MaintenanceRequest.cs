@@ -39,10 +39,12 @@ namespace PersonaXFleet.Models
 
         [StringLength(1000)]
         public string ? AdminComments { get; set; }
-public string? CurrentRouteId { get; set; }
-public Router? CurrentRoute { get; set; }
+        public string? CurrentRouteId { get; set; }
+        public Router? CurrentRoute { get; set; }
 
         public string CurrentStage { get; set; } // "Comment", "Review", etc.
+
+        public int? TotatalCostofRepair { get; set; }
 
         public string Department { get; set; }
         public ICollection<MaintenanceTransaction> Transactions { get; set; }
